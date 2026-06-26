@@ -1,4 +1,4 @@
-class AppAssets {
-  static const logo = "assets/images/logo.png";
-  static const bottle = "assets/images/bottle.svg";
+class ImageConstants {
+  static const String bottle = 'assets/images/water_bottle_002.png';
+  static const String bottle2 = 'assets/images/water_bottle_002.png';
 }
