@@ -20,11 +20,11 @@ class _HomeScreenState extends State<HomeScreen> {
   // -- tweak these directly as you dial in the feel.
   late final GlassyWaterController _waterController = GlassyWaterController(
     minLevel: 0,
-    maxLevel: 2.0,
+    maxLevel: 5.0,
     initialLevel: 1.1,
-    waveAmount: 1.5,
-    easeFactor: 0.04,
-    waveSpeed: 0.012,
+    waveAmount: 4.0, // idle amplitude — raise for more movement
+    easeFactor: 0.04, //time taken for filling or removing
+    waveSpeed: 0.01, // idle speed — raise to speed up the breathing
   );
 
   @override
