@@ -6,7 +6,7 @@ class AppThemes {
     brightness: Brightness.light,
     colorScheme: ColorScheme.light(
       primary: AppColors.colour368AE9,
-      surface: AppColors.colourF9FAFE,
+      surface: AppColors.colour7C8187,
       onSurface: AppColors.colour000005,
     ),
     scaffoldBackgroundColor: AppColors.colourF9FAFE,
@@ -17,10 +17,10 @@ class AppThemes {
     brightness: Brightness.dark,
     colorScheme: ColorScheme.dark(
       primary: AppColors.colour368AE9,
-      surface: AppColors.colour233043,
+      surface: AppColors.colourD8D9DF,
       onSurface: AppColors.colourF9FAFE,
     ),
-    scaffoldBackgroundColor: AppColors.colour233043,
+    scaffoldBackgroundColor: AppColors.colour071017,
   );
 
   //add later :-

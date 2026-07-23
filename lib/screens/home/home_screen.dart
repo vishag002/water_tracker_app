@@ -22,8 +22,10 @@ class _HomeScreenState extends State<HomeScreen> {
     minLevel: 0,
     maxLevel: 5.0,
     initialLevel: 1.1,
-    waveAmount: 4.0, // idle amplitude — raise for more movement
-    easeFactor: 0.04, //time taken for filling or removing
+    waveAmount: 4.0,
+    // idle amplitude — raise for more movement
+    easeFactor: 0.04,
+    //time taken for filling or removing
     waveSpeed: 0.01, // idle speed — raise to speed up the breathing
   );
 
@@ -50,7 +52,11 @@ class _HomeScreenState extends State<HomeScreen> {
                 Column(
                   children: [
                     Text("Welcome", style: AppTextStyles.titleSemiBold),
-                    Text("Vishag", style: AppTextStyles.headingSemiBold),
+                    Text(
+                      "Vishag",
+                      style: AppTextStyles.headingSemiBold,
+                      maxLines: 1,
+                    ),
                   ],
                 ),
                 IconButton(

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:water_tracker_app/components/custom_loader.dart';
 import 'package:water_tracker_app/core/app_text_styles.dart';
-import 'package:water_tracker_app/core/constants/colour_const.dart';
 
 class ScaffoldCustom extends StatelessWidget {
   const ScaffoldCustom({
@@ -64,17 +63,20 @@ class ScaffoldCustom extends StatelessWidget {
       }
     });
 
+    final theme = Theme.of(context);
+
     return Scaffold(
-      backgroundColor: backgroundColor ?? AppColors.colourF9FAFE,
+      backgroundColor: backgroundColor ?? theme.scaffoldBackgroundColor,
       resizeToAvoidBottomInset: resizeToAvoidBottomInset,
       extendBodyBehindAppBar: extendBodyBehindAppBar,
       appBar: showAppBar
           ? AppBar(
               scrolledUnderElevation: 0.0,
               leading: leading,
-              iconTheme: const IconThemeData(color: AppColors.colour000000),
+              iconTheme: IconThemeData(color: theme.colorScheme.onSurface),
               centerTitle: centerTitle,
-              backgroundColor: appBarBackgroundColor ?? AppColors.colourF9FAFE,
+              backgroundColor:
+                  appBarBackgroundColor ?? theme.scaffoldBackgroundColor,
               actions: appBarActions != null
                   ? [...appBarActions!, const SizedBox(width: 12)]
                   : null,
@@ -84,7 +86,7 @@ class ScaffoldCustom extends StatelessWidget {
                       style:
                           titleStyle ??
                           AppTextStyles.subtitleSemiBold.copyWith(
-                            color: AppColors.colour233043,
+                            color: theme.colorScheme.onSurface,
                           ),
                     )
                   : null,
