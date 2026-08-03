@@ -152,7 +152,7 @@ abstract class AppLocalizations {
   /// No description provided for @homeGoalLabel.
   ///
   /// In en, this message translates to:
-  /// **'{goal} Goal'**
+  /// **'{goal} L Goal'**
   String homeGoalLabel(Object goal);
 
   /// No description provided for @homeQuickAdd.

@@ -39,7 +39,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String homeGoalLabel(Object goal) {
-    return '$goal Goal';
+    return '$goal L Goal';
   }
 
   @override

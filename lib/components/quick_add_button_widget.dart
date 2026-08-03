@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:water_tracker_app/core/app_text_styles.dart';
 
 class QuickAddButtonWidget extends StatelessWidget {
   final VoidCallback onTap;
@@ -19,31 +20,25 @@ class QuickAddButtonWidget extends StatelessWidget {
       onTap: onTap,
       borderRadius: BorderRadius.circular(16.r),
       child: Container(
-        width: 80.w,
+        width: 90.w,
         height: 80.h,
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: Theme.of(context).colorScheme.surface,
+
           borderRadius: BorderRadius.circular(16.r),
-          border: Border.all(color: Colors.grey.withOpacity(0.2), width: 1),
         ),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Image.asset(
               imageUrl,
+              color: Theme.of(context).colorScheme.onSurface,
               width: 32.w,
               height: 32.h,
               fit: BoxFit.contain,
             ),
             SizedBox(height: 8.h),
-            Text(
-              title,
-              style: TextStyle(
-                fontSize: 13.sp,
-                fontWeight: FontWeight.w500,
-                color: Colors.black87,
-              ),
-            ),
+            Text(title, style: AppTextStyles.bodySmallSemiBold),
           ],
         ),
       ),

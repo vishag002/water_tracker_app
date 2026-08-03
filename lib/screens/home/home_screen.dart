@@ -3,6 +3,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:water_tracker_app/animations/glassy_water_bottle.dart';
 import 'package:water_tracker_app/animations/glassy_water_controller.dart';
 import 'package:water_tracker_app/components/hexagon_widget.dart';
+import 'package:water_tracker_app/components/quick_add_button_widget.dart';
 import 'package:water_tracker_app/components/scaffold_custom.dart';
 import 'package:water_tracker_app/core/app_text_styles.dart';
 import 'package:water_tracker_app/core/constants/colour_const.dart';
@@ -40,6 +41,8 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final localizations = AppLocalizations.of(context)!;
+
     return ScaffoldCustom(
       showAppBar: false,
       body: Padding(
@@ -90,13 +93,13 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
                 Center(
                   child: SizedBox(
-                    width: 227.w,
-                    height: 400.h,
+                    width: 200.w,
+                    height: 380.h,
                     child: GlassyWaterBottle(
                       controller: _waterController,
                       bottleAsset: ImageConstants.bottle,
-                      width: 227.w,
-                      height: 400.h,
+                      width: 200.w,
+                      height: 380.h,
                       // Matches the Figma palette's primary blue (368AE9), with
                       // a slightly deeper shade at the bottom for a touch of
                       // depth rather than the dramatic two-tone green before.
@@ -127,20 +130,40 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               ],
             ),
-            SizedBox(height: 24.h),
-            // Temporary test button -- wire this to your real "+250ml" action
-            // once it's hooked up to the data layer. Remove when ready.
-            Center(
-              child: ElevatedButton(
-                onPressed: () => _waterController.addLevel(0.25),
-                child: const Text('+250ml'),
-              ),
+            // SizedBox(height: 10.h),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  localizations.homeGoalLabel(2),
+                  style: AppTextStyles.bodySmallRegular,
+                ),
+                SizedBox(width: 5.w),
+                Icon(Icons.edit_outlined, size: 12.sp),
+              ],
             ),
-            Center(
-              child: ElevatedButton(
-                onPressed: () => _waterController.minusLevel(0.25),
-                child: const Text('-250ml'),
-              ),
+            SizedBox(height: 25.h),
+            Text(localizations.homeQuickAdd, style: AppTextStyles.bodySemiBold),
+            SizedBox(height: 10.h),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                QuickAddButtonWidget(
+                  onTap: () => _waterController.addLevel(0.05),
+                  imageUrl: ImageConstants.waterGlassIcon,
+                  title: '50 ml',
+                ),
+                QuickAddButtonWidget(
+                  onTap: () => _waterController.addLevel(0.5),
+                  imageUrl: ImageConstants.waterBottleIcon,
+                  title: '+500 ml',
+                ),
+                QuickAddButtonWidget(
+                  onTap: () => _waterController.addLevel(0.25),
+                  imageUrl: ImageConstants.waterBottleIcon2,
+                  title: '+250 ml',
+                ),
+              ],
             ),
           ],
         ),
