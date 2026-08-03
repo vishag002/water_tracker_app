@@ -42,8 +42,7 @@ class SettingsCard extends StatelessWidget {
                 children: [
                   Text(
                     title,
-                    style: AppTextStyles.bodyRegular.copyWith(
-                      fontWeight: FontWeight.w600,
+                    style: AppTextStyles.bodySmallSemiBold.copyWith(
                       color: theme.colorScheme.onSurface,
                     ),
                     maxLines: 1,
@@ -52,9 +51,8 @@ class SettingsCard extends StatelessWidget {
                   SizedBox(height: 4.h),
                   Text(
                     subtitle,
-                    style: AppTextStyles.bodyRegular.copyWith(
-                      fontSize: 12.sp,
-                      color: theme.colorScheme.onSurface.withOpacity(0.6),
+                    style: AppTextStyles.captionRegular.copyWith(
+                      color: theme.colorScheme.onSurface,
                     ),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,

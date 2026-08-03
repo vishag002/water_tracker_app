@@ -112,6 +112,336 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Daily Goal'**
   String get dailyGoal;
+
+  /// No description provided for @navHome.
+  ///
+  /// In en, this message translates to:
+  /// **'Home'**
+  String get navHome;
+
+  /// No description provided for @navHistory.
+  ///
+  /// In en, this message translates to:
+  /// **'History'**
+  String get navHistory;
+
+  /// No description provided for @navSettings.
+  ///
+  /// In en, this message translates to:
+  /// **'Settings'**
+  String get navSettings;
+
+  /// No description provided for @homeWelcome.
+  ///
+  /// In en, this message translates to:
+  /// **'Welcome'**
+  String get homeWelcome;
+
+  /// No description provided for @homeDayStreak.
+  ///
+  /// In en, this message translates to:
+  /// **'Day Streak'**
+  String get homeDayStreak;
+
+  /// No description provided for @homeIntakeOfGoal.
+  ///
+  /// In en, this message translates to:
+  /// **'of {goal}'**
+  String homeIntakeOfGoal(Object goal);
+
+  /// No description provided for @homeGoalLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'{goal} Goal'**
+  String homeGoalLabel(Object goal);
+
+  /// No description provided for @homeQuickAdd.
+  ///
+  /// In en, this message translates to:
+  /// **'Quick Add'**
+  String get homeQuickAdd;
+
+  /// No description provided for @homeQuickAdd50ml.
+  ///
+  /// In en, this message translates to:
+  /// **'50 ml'**
+  String get homeQuickAdd50ml;
+
+  /// No description provided for @homeQuickAdd500ml.
+  ///
+  /// In en, this message translates to:
+  /// **'+500 ml'**
+  String get homeQuickAdd500ml;
+
+  /// No description provided for @homeQuickAdd250ml.
+  ///
+  /// In en, this message translates to:
+  /// **'+250 ml'**
+  String get homeQuickAdd250ml;
+
+  /// No description provided for @settingsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Settings'**
+  String get settingsTitle;
+
+  /// No description provided for @settingsMode.
+  ///
+  /// In en, this message translates to:
+  /// **'Mode'**
+  String get settingsMode;
+
+  /// No description provided for @settingsLightMode.
+  ///
+  /// In en, this message translates to:
+  /// **'Light Mode'**
+  String get settingsLightMode;
+
+  /// No description provided for @settingsDarkMode.
+  ///
+  /// In en, this message translates to:
+  /// **'Dark Mode'**
+  String get settingsDarkMode;
+
+  /// No description provided for @settingsReminders.
+  ///
+  /// In en, this message translates to:
+  /// **'Reminders'**
+  String get settingsReminders;
+
+  /// No description provided for @settingsNextReminderAt.
+  ///
+  /// In en, this message translates to:
+  /// **'Next reminder at {time}'**
+  String settingsNextReminderAt(Object time);
+
+  /// No description provided for @settingsStreakCalendar.
+  ///
+  /// In en, this message translates to:
+  /// **'Streak Calendar'**
+  String get settingsStreakCalendar;
+
+  /// No description provided for @settingsStreakCalendarSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'View your progress'**
+  String get settingsStreakCalendarSubtitle;
+
+  /// No description provided for @settingsManageWaterGoal.
+  ///
+  /// In en, this message translates to:
+  /// **'Manage Water Goal'**
+  String get settingsManageWaterGoal;
+
+  /// No description provided for @settingsWaterGoalSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'{goal} per day'**
+  String settingsWaterGoalSubtitle(Object goal);
+
+  /// No description provided for @settingsWaterCalculator.
+  ///
+  /// In en, this message translates to:
+  /// **'Water Calculator'**
+  String get settingsWaterCalculator;
+
+  /// No description provided for @settingsWaterCalculatorSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Calculate your daily water intake'**
+  String get settingsWaterCalculatorSubtitle;
+
+  /// No description provided for @settingsHistory.
+  ///
+  /// In en, this message translates to:
+  /// **'History'**
+  String get settingsHistory;
+
+  /// No description provided for @settingsHistorySubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'View your past intake'**
+  String get settingsHistorySubtitle;
+
+  /// No description provided for @settingsRemoveAds.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove Ads'**
+  String get settingsRemoveAds;
+
+  /// No description provided for @settingsRemoveAdsSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Enjoy an ad-free experience'**
+  String get settingsRemoveAdsSubtitle;
+
+  /// No description provided for @settingsRemoveAdsPrice.
+  ///
+  /// In en, this message translates to:
+  /// **'{price}'**
+  String settingsRemoveAdsPrice(Object price);
+
+  /// No description provided for @settingsRemoveAdsPriceSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'One-time purchase'**
+  String get settingsRemoveAdsPriceSubtitle;
+
+  /// No description provided for @historyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'History'**
+  String get historyTitle;
+
+  /// No description provided for @historyTabDay.
+  ///
+  /// In en, this message translates to:
+  /// **'Day'**
+  String get historyTabDay;
+
+  /// No description provided for @historyTabWeek.
+  ///
+  /// In en, this message translates to:
+  /// **'Week'**
+  String get historyTabWeek;
+
+  /// No description provided for @historyTabMonth.
+  ///
+  /// In en, this message translates to:
+  /// **'Month'**
+  String get historyTabMonth;
+
+  /// No description provided for @historyTabYear.
+  ///
+  /// In en, this message translates to:
+  /// **'Year'**
+  String get historyTabYear;
+
+  /// No description provided for @historyDateHeader.
+  ///
+  /// In en, this message translates to:
+  /// **'{date}'**
+  String historyDateHeader(Object date);
+
+  /// No description provided for @historyIntakeValue.
+  ///
+  /// In en, this message translates to:
+  /// **'{value}'**
+  String historyIntakeValue(Object value);
+
+  /// No description provided for @historyIntakeOfGoal.
+  ///
+  /// In en, this message translates to:
+  /// **'of {goal}'**
+  String historyIntakeOfGoal(Object goal);
+
+  /// No description provided for @historyPercentOfGoal.
+  ///
+  /// In en, this message translates to:
+  /// **'{percent}% of daily goal'**
+  String historyPercentOfGoal(Object percent);
+
+  /// No description provided for @historyTotalIntake.
+  ///
+  /// In en, this message translates to:
+  /// **'Total Intake'**
+  String get historyTotalIntake;
+
+  /// No description provided for @historyTotalEntries.
+  ///
+  /// In en, this message translates to:
+  /// **'Total Entries'**
+  String get historyTotalEntries;
+
+  /// No description provided for @historyQuickStats.
+  ///
+  /// In en, this message translates to:
+  /// **'Quick Stats'**
+  String get historyQuickStats;
+
+  /// No description provided for @historyAverageIntake.
+  ///
+  /// In en, this message translates to:
+  /// **'Average Intake'**
+  String get historyAverageIntake;
+
+  /// No description provided for @historyAverageIntakeValue.
+  ///
+  /// In en, this message translates to:
+  /// **'{value}/day'**
+  String historyAverageIntakeValue(Object value);
+
+  /// No description provided for @historyBestDay.
+  ///
+  /// In en, this message translates to:
+  /// **'Best Day'**
+  String get historyBestDay;
+
+  /// No description provided for @historyBestDayValue.
+  ///
+  /// In en, this message translates to:
+  /// **'{value}'**
+  String historyBestDayValue(Object value);
+
+  /// No description provided for @historyBestDayDate.
+  ///
+  /// In en, this message translates to:
+  /// **'{date}'**
+  String historyBestDayDate(Object date);
+
+  /// No description provided for @historyGoalAchievement.
+  ///
+  /// In en, this message translates to:
+  /// **'Goal Achievement'**
+  String get historyGoalAchievement;
+
+  /// No description provided for @historyGoalAchievementPercent.
+  ///
+  /// In en, this message translates to:
+  /// **'{percent}%'**
+  String historyGoalAchievementPercent(Object percent);
+
+  /// No description provided for @historyGoalAchievementDetail.
+  ///
+  /// In en, this message translates to:
+  /// **'{achieved} of {total} days'**
+  String historyGoalAchievementDetail(Object achieved, Object total);
+
+  /// No description provided for @historyEntryTotalIntake.
+  ///
+  /// In en, this message translates to:
+  /// **'Total Intake'**
+  String get historyEntryTotalIntake;
+
+  /// No description provided for @historyEntryOfGoal.
+  ///
+  /// In en, this message translates to:
+  /// **'of {goal} Goal'**
+  String historyEntryOfGoal(Object goal);
+
+  /// No description provided for @historyEntryTime.
+  ///
+  /// In en, this message translates to:
+  /// **'{time}'**
+  String historyEntryTime(Object time);
+
+  /// No description provided for @historyEntryAmount.
+  ///
+  /// In en, this message translates to:
+  /// **'{amount}'**
+  String historyEntryAmount(Object amount);
+
+  /// No description provided for @historyTip.
+  ///
+  /// In en, this message translates to:
+  /// **'Tip: Keep going!'**
+  String get historyTip;
+
+  /// No description provided for @historyTipMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'You\'re doing great. Stay hydrated!'**
+  String get historyTipMessage;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

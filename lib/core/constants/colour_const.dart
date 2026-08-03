@@ -21,4 +21,8 @@ class AppColors {
   static const Color textDark = Color(0xFF000005);
   static const Color textLight = Color(0xFF7C8187);
   static const Color borderColor = Color(0xFFD8D9DF);
+
+  //other static colors
+  static const Color colour121A27 = Color(0xFF121A27);
+  static const Color colourEEF5FF = Color(0xFFEEF5FF);
 }

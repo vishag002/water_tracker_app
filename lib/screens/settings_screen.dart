@@ -6,14 +6,17 @@ import 'package:water_tracker_app/components/theme_mode_button.dart';
 import 'package:water_tracker_app/core/app_text_styles.dart';
 import 'package:water_tracker_app/core/constants/colour_const.dart';
 import 'package:water_tracker_app/core/constants/image_const.dart';
+import 'package:water_tracker_app/l10n/app_localizations.dart';
 
 class SettingsScreen extends StatelessWidget {
   const SettingsScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final localizations = AppLocalizations.of(context)!;
+
     return ScaffoldCustom(
-      title: 'settings',
+      title: localizations.settingsTitle,
       centerTitle: true,
       body: SingleChildScrollView(
         child: Padding(
@@ -22,7 +25,10 @@ class SettingsScreen extends StatelessWidget {
             children: [
               Align(
                 alignment: Alignment.centerLeft,
-                child: Text("Mode", style: AppTextStyles.bodyRegular),
+                child: Text(
+                  localizations.settingsMode,
+                  style: AppTextStyles.bodyRegular,
+                ),
               ),
               SizedBox(height: 8.h),
               ThemeToggleButton(),
@@ -30,36 +36,36 @@ class SettingsScreen extends StatelessWidget {
 
               SettingsCard(
                 leadingAsset: ImageConstants.bottle,
-                title: 'Reminders',
-                subtitle: 'Next reminder at 10:00 AM',
+                title: localizations.settingsReminders,
+                subtitle: localizations.settingsNextReminderAt('10:00 AM'),
                 onTap: () {},
               ),
               SizedBox(height: 12.h),
               SettingsCard(
                 leadingAsset: ImageConstants.bottle,
-                title: 'Streak Calendar',
-                subtitle: 'View your progress',
+                title: localizations.settingsStreakCalendar,
+                subtitle: localizations.settingsStreakCalendarSubtitle,
                 onTap: () {},
               ),
               SizedBox(height: 12.h),
               SettingsCard(
                 leadingAsset: ImageConstants.bottle,
-                title: 'Manage Water Goal',
-                subtitle: '2 L per day',
+                title: localizations.settingsManageWaterGoal,
+                subtitle: localizations.settingsWaterGoalSubtitle('2 L'),
                 onTap: () {},
               ),
               SizedBox(height: 12.h),
               SettingsCard(
                 leadingAsset: ImageConstants.bottle,
-                title: 'Water Calculator',
-                subtitle: 'Calculate your daily water intake',
+                title: localizations.settingsWaterCalculator,
+                subtitle: localizations.settingsWaterCalculatorSubtitle,
                 onTap: () {},
               ),
               SizedBox(height: 12.h),
               SettingsCard(
                 leadingAsset: ImageConstants.bottle,
-                title: 'History',
-                subtitle: 'View your past intake',
+                title: localizations.settingsHistory,
+                subtitle: localizations.settingsHistorySubtitle,
                 onTap: () {},
               ),
               SizedBox(height: 12.h),
@@ -67,7 +73,7 @@ class SettingsScreen extends StatelessWidget {
                 height: 115.h,
                 width: 320.w,
                 decoration: BoxDecoration(
-                  color: Theme.of(context).colorScheme.onSurface,
+                  color: Theme.of(context).colorScheme.surface,
                   borderRadius: BorderRadius.circular(18.r),
                 ),
                 child: Padding(
@@ -82,18 +88,24 @@ class SettingsScreen extends StatelessWidget {
                         width: 40.w,
                         color: AppColors.borderColor,
                       ),
+                      SizedBox(width: 18.w),
                       //
                       Expanded(
                         child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text("Remove Ads", style: AppTextStyles.bodyMedium),
                             Text(
-                              "Enjoy an ad-free experience",
-                              style: AppTextStyles.bodyMedium,
+                              localizations.settingsRemoveAds,
+                              style: AppTextStyles.bodySmallSemiBold,
                             ),
                             Text(
-                              "One-time purchase",
-                              style: AppTextStyles.bodyMedium,
+                              localizations.settingsRemoveAdsSubtitle,
+                              style: AppTextStyles.captionRegular,
+                            ),
+                            Text(
+                              localizations.settingsRemoveAdsPriceSubtitle,
+                              style: AppTextStyles.captionRegular,
                             ),
                           ],
                         ),
@@ -102,12 +114,22 @@ class SettingsScreen extends StatelessWidget {
                       //
                       Container(
                         width: 70.w,
-                        height: 40.h,
+                        height: 30.h,
                         decoration: BoxDecoration(
                           color: AppColors.colour368AE9,
                           borderRadius: BorderRadius.circular(30.r),
                         ),
-                        child: Center(child: Text('₹19')),
+                        child: Padding(
+                          padding: EdgeInsets.symmetric(
+                            // horizontal: 20.w,
+                            // vertical: 15.h,
+                          ),
+                          child: Center(
+                            child: Text(
+                              localizations.settingsRemoveAdsPrice('₹19'),
+                            ),
+                          ),
+                        ),
                       ),
                     ],
                   ),
