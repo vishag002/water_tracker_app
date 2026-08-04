@@ -32,7 +32,6 @@ class QuickAddButtonWidget extends StatelessWidget {
           children: [
             Image.asset(
               imageUrl,
-              color: Theme.of(context).colorScheme.onSurface,
               width: 32.w,
               height: 32.h,
               fit: BoxFit.contain,
