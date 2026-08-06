@@ -26,4 +26,10 @@ class ImageConstants {
       'assets/images/liquid_drop_outline.png';
   static const String settingsFilled = 'assets/images/settings_filled.png';
   static const String settingsOutline = 'assets/images/settings_outline.png';
+  static const String calculatorIcon = 'assets/images/calculator_icon.png';
+  static const String calendarIcon = 'assets/images/calendar.png';
+  static const String lightOnIcon = 'assets/images/light_on_icon.png';
+  static const String notificationOutline =
+      'assets/images/notification_outline_icon.png';
+  static const String waterDrop1 = 'assets/images/water_drop_1.png';
 }

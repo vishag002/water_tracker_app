@@ -7,6 +7,7 @@ import 'package:water_tracker_app/core/app_text_styles.dart';
 import 'package:water_tracker_app/core/constants/colour_const.dart';
 import 'package:water_tracker_app/core/constants/image_const.dart';
 import 'package:water_tracker_app/l10n/app_localizations.dart';
+import 'package:water_tracker_app/screens/settings/reminder_screen.dart';
 
 class SettingsScreen extends StatelessWidget {
   const SettingsScreen({super.key});
@@ -35,39 +36,44 @@ class SettingsScreen extends StatelessWidget {
               SizedBox(height: 12.h),
 
               SettingsCard(
-                leadingAsset: ImageConstants.bottle,
+                leadingAsset: ImageConstants.notificationOutline,
                 title: localizations.settingsReminders,
                 subtitle: localizations.settingsNextReminderAt('10:00 AM'),
-                onTap: () {},
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => ReminderScreen()),
+                  );
+                },
               ),
               SizedBox(height: 12.h),
               SettingsCard(
-                leadingAsset: ImageConstants.bottle,
+                leadingAsset: ImageConstants.calendarIcon,
                 title: localizations.settingsStreakCalendar,
                 subtitle: localizations.settingsStreakCalendarSubtitle,
                 onTap: () {},
               ),
               SizedBox(height: 12.h),
               SettingsCard(
-                leadingAsset: ImageConstants.bottle,
+                leadingAsset: ImageConstants.waterDrop1,
                 title: localizations.settingsManageWaterGoal,
                 subtitle: localizations.settingsWaterGoalSubtitle('2 L'),
                 onTap: () {},
               ),
               SizedBox(height: 12.h),
               SettingsCard(
-                leadingAsset: ImageConstants.bottle,
+                leadingAsset: ImageConstants.calculatorIcon,
                 title: localizations.settingsWaterCalculator,
                 subtitle: localizations.settingsWaterCalculatorSubtitle,
                 onTap: () {},
               ),
-              SizedBox(height: 12.h),
-              SettingsCard(
-                leadingAsset: ImageConstants.bottle,
-                title: localizations.settingsHistory,
-                subtitle: localizations.settingsHistorySubtitle,
-                onTap: () {},
-              ),
+              // SizedBox(height: 12.h),
+              // SettingsCard(
+              //   leadingAsset: ImageConstants.bottle,
+              //   title: localizations.settingsHistory,
+              //   subtitle: localizations.settingsHistorySubtitle,
+              //   onTap: () {},
+              // ),
               SizedBox(height: 12.h),
               Container(
                 height: 115.h,
@@ -83,10 +89,10 @@ class SettingsScreen extends StatelessWidget {
                   ),
                   child: Row(
                     children: [
-                      Container(
+                      SizedBox(
                         height: 40.h,
                         width: 40.w,
-                        color: AppColors.borderColor,
+                        child: Image.asset(ImageConstants.crownIcon),
                       ),
                       SizedBox(width: 18.w),
                       //

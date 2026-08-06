@@ -7,6 +7,9 @@ class SettingsCard extends StatelessWidget {
   final String title;
   final String subtitle;
   final VoidCallback onTap;
+  final Widget? leading;
+  final Widget? trailing;
+  final dynamic height;
 
   const SettingsCard({
     super.key,
@@ -14,6 +17,9 @@ class SettingsCard extends StatelessWidget {
     required this.title,
     required this.subtitle,
     required this.onTap,
+    this.leading,
+    this.trailing,
+    this.height,
   });
 
   @override
@@ -24,7 +30,7 @@ class SettingsCard extends StatelessWidget {
       onTap: onTap,
       behavior: HitTestBehavior.opaque,
       child: Container(
-        height: 80.h,
+        height: height ?? 80.h,
         width: 332.w,
         padding: EdgeInsets.symmetric(horizontal: 16.w),
         decoration: BoxDecoration(
@@ -33,7 +39,7 @@ class SettingsCard extends StatelessWidget {
         ),
         child: Row(
           children: [
-            Image.asset(leadingAsset, width: 42.w, height: 42.h),
+            leading ?? Image.asset(leadingAsset, width: 25.w, height: 25.h),
             SizedBox(width: 12.w),
             Expanded(
               child: Column(
@@ -61,11 +67,12 @@ class SettingsCard extends StatelessWidget {
               ),
             ),
             SizedBox(width: 8.w),
-            Icon(
-              Icons.chevron_right,
-              size: 22.sp,
-              color: theme.colorScheme.onSurface.withOpacity(0.4),
-            ),
+            trailing ??
+                Icon(
+                  Icons.chevron_right,
+                  size: 22.sp,
+                  color: theme.colorScheme.onSurface.withOpacity(0.4),
+                ),
           ],
         ),
       ),

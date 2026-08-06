@@ -5,7 +5,6 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:water_tracker_app/components/bottom_nav_bar.dart';
 import 'package:water_tracker_app/core/theme/theme_provider.dart';
 import 'package:water_tracker_app/l10n/app_localizations.dart';
-import 'package:water_tracker_app/screens/home/home_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
