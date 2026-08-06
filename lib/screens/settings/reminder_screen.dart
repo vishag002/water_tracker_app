@@ -19,6 +19,7 @@ class _ReminderScreenState extends State<ReminderScreen> {
   bool isReminderOn = false;
   bool isSmartPauseOn = true;
   ReminderInterval selectedInterval = ReminderInterval.thirtyMin;
+  int customIntervalMinutes = 45;
 
   void _onIntervalSelected(ReminderInterval interval) {
     if (interval == ReminderInterval.custom) {
@@ -38,10 +39,14 @@ class _ReminderScreenState extends State<ReminderScreen> {
         borderRadius: BorderRadius.vertical(top: Radius.circular(20.r)),
       ),
       builder: (context) {
-        // TODO: build custom interval picker UI
-        return SizedBox(
-          height: 300.h,
-          child: Center(child: Text('Custom interval picker')),
+        return _CustomIntervalSheet(
+          initialMinutes: customIntervalMinutes,
+          onSave: (minutes) {
+            setState(() {
+              customIntervalMinutes = minutes;
+              selectedInterval = ReminderInterval.custom;
+            });
+          },
         );
       },
     );
@@ -92,6 +97,7 @@ class _ReminderScreenState extends State<ReminderScreen> {
             //time interval card
             TimeIntervalCard(
               selectedInterval: selectedInterval,
+              customMinutes: customIntervalMinutes,
               onIntervalSelected: _onIntervalSelected,
             ),
             SizedBox(height: 15.h),
@@ -169,14 +175,15 @@ class _ReminderScreenState extends State<ReminderScreen> {
 //time interval card
 class TimeIntervalCard extends StatelessWidget {
   final ReminderInterval selectedInterval;
+  final int customMinutes;
   final ValueChanged<ReminderInterval> onIntervalSelected;
 
   const TimeIntervalCard({
     super.key,
     required this.selectedInterval,
+    required this.customMinutes,
     required this.onIntervalSelected,
   });
-
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -243,7 +250,9 @@ class TimeIntervalCard extends StatelessWidget {
                 Expanded(
                   child: intervalOptionWidget(
                     context,
-                    title: 'Custom',
+                    title: selectedInterval == ReminderInterval.custom
+                        ? '$customMinutes min'
+                        : 'Custom',
                     icon: Icons.tune,
                     isSelected: selectedInterval == ReminderInterval.custom,
                     onTap: () => onIntervalSelected(ReminderInterval.custom),
@@ -623,4 +632,343 @@ class _DashedLinePainter extends CustomPainter {
   @override
   bool shouldRepaint(covariant _DashedLinePainter oldDelegate) =>
       oldDelegate.color != color;
+}
+
+//custom interval bottom sheet content
+class _CustomIntervalSheet extends StatefulWidget {
+  final int initialMinutes;
+  final ValueChanged<int> onSave;
+
+  const _CustomIntervalSheet({
+    required this.initialMinutes,
+    required this.onSave,
+  });
+
+  @override
+  State<_CustomIntervalSheet> createState() => _CustomIntervalSheetState();
+}
+
+class _CustomIntervalSheetState extends State<_CustomIntervalSheet> {
+  static const List<int> _stops = [
+    15,
+    30,
+    60,
+    90,
+    120,
+    150,
+    180,
+    210,
+    240,
+    270,
+    300,
+    330,
+    360,
+  ];
+
+  late int selectedIndex;
+
+  int get selectedMinutes => _stops[selectedIndex];
+
+  static String _formatMinutes(int minutes) {
+    if (minutes < 60) return '$minutes min';
+    final hours = minutes ~/ 60;
+    final remaining = minutes % 60;
+    if (remaining == 0) return '$hours hr';
+    return '${hours}h ${remaining}m';
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    //snap the incoming value to the nearest stop
+    selectedIndex = 0;
+    var closestDiff = (widget.initialMinutes - _stops[0]).abs();
+    for (var i = 1; i < _stops.length; i++) {
+      final diff = (widget.initialMinutes - _stops[i]).abs();
+      if (diff < closestDiff) {
+        closestDiff = diff;
+        selectedIndex = i;
+      }
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final accentColor = AppColors.colour368AE9;
+    return Padding(
+      padding: EdgeInsets.only(
+        left: 20.w,
+        right: 20.w,
+        top: 12.h,
+        bottom: MediaQuery.of(context).viewInsets.bottom + 20.h,
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          //grabber + close button
+          Stack(
+            alignment: Alignment.center,
+            children: [
+              Container(
+                height: 4.h,
+                width: 40.w,
+                decoration: BoxDecoration(
+                  color: Theme.of(
+                    context,
+                  ).colorScheme.onSurface.withValues(alpha: 0.2),
+                  borderRadius: BorderRadius.circular(2.r),
+                ),
+              ),
+              Positioned(
+                right: 0,
+                child: GestureDetector(
+                  onTap: () => Navigator.pop(context),
+                  child: Container(
+                    height: 28.h,
+                    width: 28.w,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.onSurface.withValues(alpha: 0.05),
+                    ),
+                    child: Icon(Icons.close, size: 16.sp),
+                  ),
+                ),
+              ),
+            ],
+          ),
+          SizedBox(height: 15.h),
+
+          //icon
+          Container(
+            height: 56.h,
+            width: 56.w,
+            decoration: BoxDecoration(
+              color: accentColor.withValues(alpha: 0.1),
+              shape: BoxShape.circle,
+            ),
+            child: Stack(
+              alignment: Alignment.center,
+              children: [
+                Icon(Icons.notifications, size: 26.sp, color: accentColor),
+                Positioned(
+                  bottom: 10.h,
+                  right: 12.w,
+                  child: Icon(
+                    Icons.water_drop,
+                    size: 12.sp,
+                    color: accentColor,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          SizedBox(height: 12.h),
+
+          //title
+          Text(
+            'Custom Reminder Interval',
+            style: AppTextStyles.subtitleSemiBold.copyWith(
+              color: Theme.of(context).colorScheme.onSurface,
+            ),
+          ),
+          SizedBox(height: 5.h),
+          Text(
+            'Choose how often you want to be reminded\nto drink water',
+            textAlign: TextAlign.center,
+            style: AppTextStyles.bodySmallRegular.copyWith(
+              color: Theme.of(
+                context,
+              ).colorScheme.onSurface.withValues(alpha: 0.6),
+            ),
+          ),
+          SizedBox(height: 20.h),
+
+          //big value display
+          Container(
+            width: double.infinity,
+            padding: EdgeInsets.symmetric(vertical: 15.h),
+            decoration: BoxDecoration(
+              color: accentColor.withValues(alpha: 0.06),
+              borderRadius: BorderRadius.circular(12.r),
+            ),
+            child: Column(
+              children: [
+                Text(
+                  _formatMinutes(selectedMinutes),
+                  style: AppTextStyles.headingSemiBold.copyWith(
+                    color: accentColor,
+                  ),
+                ),
+                SizedBox(height: 3.h),
+                Text(
+                  'Every ${_formatMinutes(selectedMinutes)}',
+                  style: AppTextStyles.captionRegular.copyWith(
+                    color: Theme.of(
+                      context,
+                    ).colorScheme.onSurface.withValues(alpha: 0.6),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          SizedBox(height: 15.h),
+
+          //slider (index-based over fixed stop list, 15 min - 6 hr)
+          SliderTheme(
+            data: SliderTheme.of(context).copyWith(
+              activeTrackColor: accentColor,
+              inactiveTrackColor: Theme.of(
+                context,
+              ).colorScheme.onSurface.withValues(alpha: 0.1),
+              thumbColor: accentColor,
+              overlayColor: accentColor.withValues(alpha: 0.15),
+              trackHeight: 4.h,
+            ),
+            child: Slider(
+              value: selectedIndex.toDouble(),
+              min: 0,
+              max: (_stops.length - 1).toDouble(),
+              divisions: _stops.length - 1,
+              onChanged: (value) {
+                setState(() {
+                  selectedIndex = value.round();
+                });
+              },
+            ),
+          ),
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: 4.w),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  '15 min',
+                  style: AppTextStyles.captionXsRegular.copyWith(
+                    color: Theme.of(
+                      context,
+                    ).colorScheme.onSurface.withValues(alpha: 0.5),
+                  ),
+                ),
+                Text(
+                  _formatMinutes(selectedMinutes),
+                  style: AppTextStyles.captionXsSemiBold.copyWith(
+                    color: accentColor,
+                  ),
+                ),
+                Text(
+                  '6 hr',
+                  style: AppTextStyles.captionXsRegular.copyWith(
+                    color: Theme.of(
+                      context,
+                    ).colorScheme.onSurface.withValues(alpha: 0.5),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          SizedBox(height: 15.h),
+
+          //recommended range info
+          Container(
+            width: double.infinity,
+            padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 10.h),
+            decoration: BoxDecoration(
+              color: accentColor.withValues(alpha: 0.06),
+              borderRadius: BorderRadius.circular(10.r),
+            ),
+            child: Row(
+              children: [
+                Icon(Icons.water_drop, size: 14.sp, color: accentColor),
+                SizedBox(width: 8.w),
+                Expanded(
+                  child: Text(
+                    'Recommended range   15 min ~ 6 hr',
+                    style: AppTextStyles.captionSemiBold.copyWith(
+                      color: accentColor,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          SizedBox(height: 15.h),
+
+          //how it works
+          // Row(
+          //   crossAxisAlignment: CrossAxisAlignment.start,
+          //   children: [
+          //     Container(
+          //       height: 32.h,
+          //       width: 32.w,
+          //       decoration: BoxDecoration(
+          //         color: Theme.of(
+          //           context,
+          //         ).colorScheme.onSurface.withValues(alpha: 0.05),
+          //         shape: BoxShape.circle,
+          //       ),
+          //       child: Icon(
+          //         Icons.notifications_none,
+          //         size: 16.sp,
+          //         color: Theme.of(
+          //           context,
+          //         ).colorScheme.onSurface.withValues(alpha: 0.6),
+          //       ),
+          //     ),
+          //     SizedBox(width: 10.w),
+          //     Expanded(
+          //       child: Column(
+          //         crossAxisAlignment: CrossAxisAlignment.start,
+          //         children: [
+          //           Text(
+          //             'How it works',
+          //             style: AppTextStyles.bodySmallSemiBold.copyWith(
+          //               color: Theme.of(context).colorScheme.onSurface,
+          //             ),
+          //           ),
+          //           SizedBox(height: 3.h),
+          //           Text(
+          //             "You'll receive a reminder every ${_formatMinutes(selectedMinutes)} between your start and end time.",
+          //             style: AppTextStyles.captionRegular.copyWith(
+          //               color: Theme.of(
+          //                 context,
+          //               ).colorScheme.onSurface.withValues(alpha: 0.6),
+          //             ),
+          //           ),
+          //         ],
+          //       ),
+          //     ),
+          //   ],
+          // ),
+          // SizedBox(height: 20.h),
+
+          //save button
+          SizedBox(
+            width: double.infinity,
+            height: 52.h,
+            child: ElevatedButton(
+              onPressed: () {
+                widget.onSave(selectedMinutes);
+                Navigator.pop(context);
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: accentColor,
+                foregroundColor: Colors.white,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(15.r),
+                ),
+              ),
+              child: Text(
+                'Done',
+                style: AppTextStyles.bodySmallSemiBold.copyWith(
+                  color: Colors.white,
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 }
