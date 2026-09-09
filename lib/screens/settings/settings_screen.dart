@@ -6,6 +6,7 @@ import 'package:water_tracker_app/components/theme_mode_button.dart';
 import 'package:water_tracker_app/core/app_text_styles.dart';
 import 'package:water_tracker_app/core/constants/colour_const.dart';
 import 'package:water_tracker_app/core/constants/image_const.dart';
+import 'package:water_tracker_app/features/water_calculator/presentation/screens/water_calculator_screen.dart';
 import 'package:water_tracker_app/l10n/app_localizations.dart';
 import 'package:water_tracker_app/screens/settings/reminder_screen.dart';
 import 'package:water_tracker_app/screens/settings/water_calculator_sreen.dart';
@@ -76,7 +77,7 @@ class SettingsScreen extends StatelessWidget {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => WaterCalculatorSreen(),
+                      builder: (context) => WaterCalculatorScreen(),
                     ),
                   );
                 },
