@@ -8,6 +8,8 @@ import 'package:water_tracker_app/core/constants/colour_const.dart';
 import 'package:water_tracker_app/core/constants/image_const.dart';
 import 'package:water_tracker_app/l10n/app_localizations.dart';
 import 'package:water_tracker_app/screens/settings/reminder_screen.dart';
+import 'package:water_tracker_app/screens/settings/water_calculator_sreen.dart';
+import 'package:water_tracker_app/screens/settings/water_goal_screen.dart';
 
 class SettingsScreen extends StatelessWidget {
   const SettingsScreen({super.key});
@@ -58,14 +60,26 @@ class SettingsScreen extends StatelessWidget {
                 leadingAsset: ImageConstants.waterDrop1,
                 title: localizations.settingsManageWaterGoal,
                 subtitle: localizations.settingsWaterGoalSubtitle('2 L'),
-                onTap: () {},
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => WaterGoalScreen()),
+                  );
+                },
               ),
               SizedBox(height: 12.h),
               SettingsCard(
                 leadingAsset: ImageConstants.calculatorIcon,
                 title: localizations.settingsWaterCalculator,
                 subtitle: localizations.settingsWaterCalculatorSubtitle,
-                onTap: () {},
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => WaterCalculatorSreen(),
+                    ),
+                  );
+                },
               ),
               // SizedBox(height: 12.h),
               // SettingsCard(
