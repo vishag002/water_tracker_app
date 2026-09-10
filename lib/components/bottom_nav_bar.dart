@@ -3,7 +3,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:water_tracker_app/core/app_text_styles.dart';
 import 'package:water_tracker_app/core/constants/colour_const.dart';
 import 'package:water_tracker_app/core/constants/image_const.dart';
-import 'package:water_tracker_app/screens/history_screens.dart';
+import 'package:water_tracker_app/features/history/presentation/screens/history_screens.dart';
 import 'package:water_tracker_app/screens/home/home_screen.dart';
 import 'package:water_tracker_app/screens/settings/settings_screen.dart';
 
@@ -58,61 +58,67 @@ class _MainNavScreenState extends State<MainNavScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: _currentTab,
-      bottomNavigationBar: SizedBox(height: 78.h, child: _buildNavBar()),
+      bottomNavigationBar: SafeArea(
+        top: false,
+        child: Padding(
+          padding: EdgeInsets.fromLTRB(16.w, 8.h, 16.w, 8.h),
+          child: SizedBox(height: 56.h, child: _buildNavBar()),
+        ),
+      ),
     );
   }
 
   Widget _buildNavBar() {
-    return SafeArea(
-      child: Padding(
-        padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
-        child: Container(
-          decoration: BoxDecoration(
-            color: Theme.of(context).colorScheme.surface,
-            borderRadius: BorderRadius.circular(15.r),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.06),
-                blurRadius: 12,
-                offset: const Offset(0, 4),
-              ),
-            ],
+    return Container(
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.surface,
+        borderRadius: BorderRadius.circular(15.r),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.06),
+            blurRadius: 12,
+            offset: const Offset(0, 4),
           ),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: List.generate(_tabs.length, (i) {
-              final tab = _tabs[i];
-              final isSelected = _selectedIndex == i;
+        ],
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        children: List.generate(_tabs.length, (i) {
+          final tab = _tabs[i];
+          final isSelected = _selectedIndex == i;
 
-              return GestureDetector(
-                onTap: () => _updateSelectedIndex(i),
-                behavior: HitTestBehavior.opaque,
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Image.asset(
-                      isSelected ? tab.filledIcon : tab.outlineIcon,
-                      width: 100.w,
-                      height: 22.h,
+          return GestureDetector(
+            onTap: () => _updateSelectedIndex(i),
+            behavior: HitTestBehavior.opaque,
+            child: SizedBox(
+              height: 48.h,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Image.asset(
+                    isSelected ? tab.filledIcon : tab.outlineIcon,
+                    width: 22.w,
+                    height: 22.h,
+                    fit: BoxFit.contain,
+                    color: isSelected
+                        ? AppColors.colour368AE9
+                        : AppColors.textLight,
+                  ),
+                  SizedBox(height: 3.h),
+                  Text(
+                    tab.label,
+                    style: AppTextStyles.captionMedium.copyWith(
                       color: isSelected
                           ? AppColors.colour368AE9
                           : AppColors.textLight,
                     ),
-                    SizedBox(height: 4.h),
-                    Text(
-                      tab.label,
-                      style: AppTextStyles.captionMedium.copyWith(
-                        color: isSelected
-                            ? AppColors.colour368AE9
-                            : AppColors.textLight,
-                      ),
-                    ),
-                  ],
-                ),
-              );
-            }),
-          ),
-        ),
+                  ),
+                ],
+              ),
+            ),
+          );
+        }),
       ),
     );
   }
