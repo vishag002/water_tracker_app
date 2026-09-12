@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:water_tracker_app/components/bottom_nav_bar.dart';
 import 'package:water_tracker_app/core/theme/theme_provider.dart';
 import 'package:water_tracker_app/l10n/app_localizations.dart';
+import 'package:water_tracker_app/screens/onboarding/splash_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -33,7 +33,7 @@ class MyApp extends ConsumerWidget {
         ],
         supportedLocales: AppLocalizations.supportedLocales,
         theme: themeData,
-        home: MainNavScreen(),
+        home: SplashScreen(),
       ),
     );
   }

@@ -8,6 +8,7 @@ import 'package:water_tracker_app/components/scaffold_custom.dart';
 import 'package:water_tracker_app/core/app_text_styles.dart';
 import 'package:water_tracker_app/core/constants/image_const.dart';
 import 'package:water_tracker_app/l10n/app_localizations.dart';
+import 'package:water_tracker_app/screens/onboarding/onboarding_name_dialog.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -69,6 +70,12 @@ class _HomeScreenState extends State<HomeScreen> {
                       maxLines: 1,
                     ),
                   ],
+                ),
+                IconButton(
+                  onPressed: () {
+                    OnboardingNameDialog.show(context);
+                  },
+                  icon: Icon(Icons.add_box_outlined),
                 ),
               ],
             ),
@@ -191,6 +198,38 @@ class _HomeScreenState extends State<HomeScreen> {
                               // up at the neck now, nudge back toward 0.54-0.56.
                               neckWidthRatio: 0.56,
                               bottomRadius: 0.15,
+                            ),
+                          ),
+                          // Today's water status, overlaid on top of the
+                          // bottle/liquid. Plain text for now -- swap
+                          // '1.5L' / 'of 2L' for the real current-intake
+                          // and goal values once that's wired up. Positioned
+                          // as a fraction of bottleHeight (not a fixed px
+                          // offset) so it stays roughly centered on the
+                          // liquid regardless of how the bottle scales.
+                          Positioned(
+                            top: bottleHeight * 0.52,
+                            left: 0,
+                            right: 0,
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Text(
+                                  '1.5L',
+                                  textAlign: TextAlign.center,
+                                  style: AppTextStyles.headingSemiBold.copyWith(
+                                    color: Colors.white,
+                                    fontSize: 22.sp,
+                                  ),
+                                ),
+                                SizedBox(height: 2.h),
+                                Text(
+                                  'of 2L',
+                                  textAlign: TextAlign.center,
+                                  style: AppTextStyles.bodySmallRegular
+                                      .copyWith(color: Colors.white),
+                                ),
+                              ],
                             ),
                           ),
                         ],
