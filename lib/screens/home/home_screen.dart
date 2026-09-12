@@ -10,6 +10,8 @@ import 'package:water_tracker_app/core/app_text_styles.dart';
 import 'package:water_tracker_app/core/constants/image_const.dart';
 import 'package:water_tracker_app/l10n/app_localizations.dart';
 import 'package:water_tracker_app/providers/user_name_provider.dart';
+import 'package:water_tracker_app/providers/water_goal_provider.dart';
+import 'package:water_tracker_app/screens/home/water_goal_edit_dialog.dart';
 import 'package:water_tracker_app/screens/onboarding/onboarding_name_dialog.dart';
 
 class HomeScreen extends ConsumerStatefulWidget {
@@ -43,9 +45,19 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     // Runs once after the first frame so we have a real BuildContext.
     // If no profile exists yet, this is a fresh install -> collect a name.
     WidgetsBinding.instance.addPostFrameCallback((_) async {
-      final hasUser = await ref.read(userRepositoryProvider).hasUser();
+      final userRepo = ref.read(userRepositoryProvider);
+      final hasUser = await userRepo.hasUser();
       if (!hasUser && mounted) {
-        OnboardingNameDialog.show(context);
+        await OnboardingNameDialog.show(context);
+      }
+
+      final user = await userRepo.getCurrentUser();
+      if (user == null || !mounted) return;
+
+      final goalRepo = ref.read(waterGoalRepositoryProvider);
+      final existingGoal = await goalRepo.getWaterGoal(user.id);
+      if (existingGoal == null) {
+        await goalRepo.createWaterGoal(userId: user.id, goal: 2, unit: 'L');
       }
     });
   }
@@ -60,6 +72,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   Widget build(BuildContext context) {
     final localizations = AppLocalizations.of(context)!;
     final userAsync = ref.watch(currentUserProvider);
+    final goalAsync = ref.watch(currentWaterGoalProvider);
 
     return ScaffoldCustom(
       showAppBar: false,
@@ -234,7 +247,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                                 ),
                                 SizedBox(height: 2.h),
                                 Text(
-                                  'of 2L',
+                                  'of ${goalAsync.value?.goal ?? 2}L',
                                   textAlign: TextAlign.center,
                                   style: AppTextStyles.bodySmallRegular
                                       .copyWith(color: Colors.white),
@@ -249,16 +262,27 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                 ),
               ),
             ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(
-                  localizations.homeGoalLabel(2),
-                  style: AppTextStyles.bodySmallRegular,
-                ),
-                SizedBox(width: 5.w),
-                Icon(Icons.edit_outlined, size: 12.sp),
-              ],
+            GestureDetector(
+              onTap: () {
+                final userId = userAsync.value?.id;
+                if (userId == null) return;
+                WaterGoalEditDialog.show(
+                  context,
+                  userId: userId,
+                  currentGoal: goalAsync.value?.goal ?? 2,
+                );
+              },
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    localizations.homeGoalLabel(goalAsync.value?.goal ?? 2),
+                    style: AppTextStyles.bodySmallRegular,
+                  ),
+                  SizedBox(width: 5.w),
+                  Icon(Icons.edit_outlined, size: 12.sp),
+                ],
+              ),
             ),
             SizedBox(height: 16.h),
             Text(localizations.homeQuickAdd, style: AppTextStyles.bodySemiBold),

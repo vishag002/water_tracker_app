@@ -399,16 +399,428 @@ class UsersCompanion extends UpdateCompanion<User> {
   }
 }
 
+class $WaterGoalsTable extends WaterGoals
+    with TableInfo<$WaterGoalsTable, WaterGoal> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $WaterGoalsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+    'id',
+    aliasedName,
+    false,
+    hasAutoIncrement: true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'PRIMARY KEY AUTOINCREMENT',
+    ),
+  );
+  static const VerificationMeta _userIdMeta = const VerificationMeta('userId');
+  @override
+  late final GeneratedColumn<int> userId = GeneratedColumn<int>(
+    'user_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'REFERENCES users (id)',
+    ),
+  );
+  static const VerificationMeta _goalMeta = const VerificationMeta('goal');
+  @override
+  late final GeneratedColumn<int> goal = GeneratedColumn<int>(
+    'goal',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _unitMeta = const VerificationMeta('unit');
+  @override
+  late final GeneratedColumn<String> unit = GeneratedColumn<String>(
+    'unit',
+    aliasedName,
+    false,
+    additionalChecks: GeneratedColumn.checkTextLength(
+      minTextLength: 1,
+      maxTextLength: 5,
+    ),
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _createdAtMeta = const VerificationMeta(
+    'createdAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
+    'created_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _updatedAtMeta = const VerificationMeta(
+    'updatedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> updatedAt = GeneratedColumn<DateTime>(
+    'updated_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    userId,
+    goal,
+    unit,
+    createdAt,
+    updatedAt,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'water_goals';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<WaterGoal> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('user_id')) {
+      context.handle(
+        _userIdMeta,
+        userId.isAcceptableOrUnknown(data['user_id']!, _userIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_userIdMeta);
+    }
+    if (data.containsKey('goal')) {
+      context.handle(
+        _goalMeta,
+        goal.isAcceptableOrUnknown(data['goal']!, _goalMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_goalMeta);
+    }
+    if (data.containsKey('unit')) {
+      context.handle(
+        _unitMeta,
+        unit.isAcceptableOrUnknown(data['unit']!, _unitMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_unitMeta);
+    }
+    if (data.containsKey('created_at')) {
+      context.handle(
+        _createdAtMeta,
+        createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_createdAtMeta);
+    }
+    if (data.containsKey('updated_at')) {
+      context.handle(
+        _updatedAtMeta,
+        updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_updatedAtMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  List<Set<GeneratedColumn>> get uniqueKeys => [
+    {userId},
+  ];
+  @override
+  WaterGoal map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return WaterGoal(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}id'],
+      )!,
+      userId: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}user_id'],
+      )!,
+      goal: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}goal'],
+      )!,
+      unit: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}unit'],
+      )!,
+      createdAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}created_at'],
+      )!,
+      updatedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}updated_at'],
+      )!,
+    );
+  }
+
+  @override
+  $WaterGoalsTable createAlias(String alias) {
+    return $WaterGoalsTable(attachedDatabase, alias);
+  }
+}
+
+class WaterGoal extends DataClass implements Insertable<WaterGoal> {
+  final int id;
+
+  /// Links this goal to the owning profile in the Users table.
+  final int userId;
+
+  /// Stored as a plain integer amount in whatever `unit` says, e.g. 2500.
+  final int goal;
+
+  /// e.g. 'ml' or 'oz'.
+  final String unit;
+  final DateTime createdAt;
+  final DateTime updatedAt;
+  const WaterGoal({
+    required this.id,
+    required this.userId,
+    required this.goal,
+    required this.unit,
+    required this.createdAt,
+    required this.updatedAt,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    map['user_id'] = Variable<int>(userId);
+    map['goal'] = Variable<int>(goal);
+    map['unit'] = Variable<String>(unit);
+    map['created_at'] = Variable<DateTime>(createdAt);
+    map['updated_at'] = Variable<DateTime>(updatedAt);
+    return map;
+  }
+
+  WaterGoalsCompanion toCompanion(bool nullToAbsent) {
+    return WaterGoalsCompanion(
+      id: Value(id),
+      userId: Value(userId),
+      goal: Value(goal),
+      unit: Value(unit),
+      createdAt: Value(createdAt),
+      updatedAt: Value(updatedAt),
+    );
+  }
+
+  factory WaterGoal.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return WaterGoal(
+      id: serializer.fromJson<int>(json['id']),
+      userId: serializer.fromJson<int>(json['userId']),
+      goal: serializer.fromJson<int>(json['goal']),
+      unit: serializer.fromJson<String>(json['unit']),
+      createdAt: serializer.fromJson<DateTime>(json['createdAt']),
+      updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'userId': serializer.toJson<int>(userId),
+      'goal': serializer.toJson<int>(goal),
+      'unit': serializer.toJson<String>(unit),
+      'createdAt': serializer.toJson<DateTime>(createdAt),
+      'updatedAt': serializer.toJson<DateTime>(updatedAt),
+    };
+  }
+
+  WaterGoal copyWith({
+    int? id,
+    int? userId,
+    int? goal,
+    String? unit,
+    DateTime? createdAt,
+    DateTime? updatedAt,
+  }) => WaterGoal(
+    id: id ?? this.id,
+    userId: userId ?? this.userId,
+    goal: goal ?? this.goal,
+    unit: unit ?? this.unit,
+    createdAt: createdAt ?? this.createdAt,
+    updatedAt: updatedAt ?? this.updatedAt,
+  );
+  WaterGoal copyWithCompanion(WaterGoalsCompanion data) {
+    return WaterGoal(
+      id: data.id.present ? data.id.value : this.id,
+      userId: data.userId.present ? data.userId.value : this.userId,
+      goal: data.goal.present ? data.goal.value : this.goal,
+      unit: data.unit.present ? data.unit.value : this.unit,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('WaterGoal(')
+          ..write('id: $id, ')
+          ..write('userId: $userId, ')
+          ..write('goal: $goal, ')
+          ..write('unit: $unit, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(id, userId, goal, unit, createdAt, updatedAt);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is WaterGoal &&
+          other.id == this.id &&
+          other.userId == this.userId &&
+          other.goal == this.goal &&
+          other.unit == this.unit &&
+          other.createdAt == this.createdAt &&
+          other.updatedAt == this.updatedAt);
+}
+
+class WaterGoalsCompanion extends UpdateCompanion<WaterGoal> {
+  final Value<int> id;
+  final Value<int> userId;
+  final Value<int> goal;
+  final Value<String> unit;
+  final Value<DateTime> createdAt;
+  final Value<DateTime> updatedAt;
+  const WaterGoalsCompanion({
+    this.id = const Value.absent(),
+    this.userId = const Value.absent(),
+    this.goal = const Value.absent(),
+    this.unit = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+  });
+  WaterGoalsCompanion.insert({
+    this.id = const Value.absent(),
+    required int userId,
+    required int goal,
+    required String unit,
+    required DateTime createdAt,
+    required DateTime updatedAt,
+  }) : userId = Value(userId),
+       goal = Value(goal),
+       unit = Value(unit),
+       createdAt = Value(createdAt),
+       updatedAt = Value(updatedAt);
+  static Insertable<WaterGoal> custom({
+    Expression<int>? id,
+    Expression<int>? userId,
+    Expression<int>? goal,
+    Expression<String>? unit,
+    Expression<DateTime>? createdAt,
+    Expression<DateTime>? updatedAt,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (userId != null) 'user_id': userId,
+      if (goal != null) 'goal': goal,
+      if (unit != null) 'unit': unit,
+      if (createdAt != null) 'created_at': createdAt,
+      if (updatedAt != null) 'updated_at': updatedAt,
+    });
+  }
+
+  WaterGoalsCompanion copyWith({
+    Value<int>? id,
+    Value<int>? userId,
+    Value<int>? goal,
+    Value<String>? unit,
+    Value<DateTime>? createdAt,
+    Value<DateTime>? updatedAt,
+  }) {
+    return WaterGoalsCompanion(
+      id: id ?? this.id,
+      userId: userId ?? this.userId,
+      goal: goal ?? this.goal,
+      unit: unit ?? this.unit,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (userId.present) {
+      map['user_id'] = Variable<int>(userId.value);
+    }
+    if (goal.present) {
+      map['goal'] = Variable<int>(goal.value);
+    }
+    if (unit.present) {
+      map['unit'] = Variable<String>(unit.value);
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<DateTime>(createdAt.value);
+    }
+    if (updatedAt.present) {
+      map['updated_at'] = Variable<DateTime>(updatedAt.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('WaterGoalsCompanion(')
+          ..write('id: $id, ')
+          ..write('userId: $userId, ')
+          ..write('goal: $goal, ')
+          ..write('unit: $unit, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   $AppDatabaseManager get managers => $AppDatabaseManager(this);
   late final $UsersTable users = $UsersTable(this);
+  late final $WaterGoalsTable waterGoals = $WaterGoalsTable(this);
   late final UsersDao usersDao = UsersDao(this as AppDatabase);
+  late final WaterGoalsDao waterGoalsDao = WaterGoalsDao(this as AppDatabase);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
   @override
-  List<DatabaseSchemaEntity> get allSchemaEntities => [users];
+  List<DatabaseSchemaEntity> get allSchemaEntities => [users, waterGoals];
 }
 
 typedef $$UsersTableCreateCompanionBuilder =
@@ -429,6 +841,29 @@ typedef $$UsersTableUpdateCompanionBuilder =
       Value<DateTime> createdAt,
       Value<DateTime> updatedAt,
     });
+
+final class $$UsersTableReferences
+    extends BaseReferences<_$AppDatabase, $UsersTable, User> {
+  $$UsersTableReferences(super.$_db, super.$_table, super.$_typedResult);
+
+  static MultiTypedResultKey<$WaterGoalsTable, List<WaterGoal>>
+  _waterGoalsRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
+    db.waterGoals,
+    aliasName: 'users__id__water_goals__user_id',
+  );
+
+  $$WaterGoalsTableProcessedTableManager get waterGoalsRefs {
+    final manager = $$WaterGoalsTableTableManager(
+      $_db,
+      $_db.waterGoals,
+    ).filter((f) => f.userId.id.sqlEquals($_itemColumn<int>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(_waterGoalsRefsTable($_db));
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: cache),
+    );
+  }
+}
 
 class $$UsersTableFilterComposer extends Composer<_$AppDatabase, $UsersTable> {
   $$UsersTableFilterComposer({
@@ -467,6 +902,31 @@ class $$UsersTableFilterComposer extends Composer<_$AppDatabase, $UsersTable> {
     column: $table.updatedAt,
     builder: (column) => ColumnFilters(column),
   );
+
+  Expression<bool> waterGoalsRefs(
+    Expression<bool> Function($$WaterGoalsTableFilterComposer f) f,
+  ) {
+    final $$WaterGoalsTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.waterGoals,
+      getReferencedColumn: (t) => t.userId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$WaterGoalsTableFilterComposer(
+            $db: $db,
+            $table: $db.waterGoals,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
 }
 
 class $$UsersTableOrderingComposer
@@ -535,6 +995,31 @@ class $$UsersTableAnnotationComposer
 
   GeneratedColumn<DateTime> get updatedAt =>
       $composableBuilder(column: $table.updatedAt, builder: (column) => column);
+
+  Expression<T> waterGoalsRefs<T extends Object>(
+    Expression<T> Function($$WaterGoalsTableAnnotationComposer a) f,
+  ) {
+    final $$WaterGoalsTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.waterGoals,
+      getReferencedColumn: (t) => t.userId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$WaterGoalsTableAnnotationComposer(
+            $db: $db,
+            $table: $db.waterGoals,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
 }
 
 class $$UsersTableTableManager
@@ -548,9 +1033,9 @@ class $$UsersTableTableManager
           $$UsersTableAnnotationComposer,
           $$UsersTableCreateCompanionBuilder,
           $$UsersTableUpdateCompanionBuilder,
-          (User, BaseReferences<_$AppDatabase, $UsersTable, User>),
+          (User, $$UsersTableReferences),
           User,
-          PrefetchHooks Function()
+          PrefetchHooks Function({bool waterGoalsRefs})
         > {
   $$UsersTableTableManager(_$AppDatabase db, $UsersTable table)
     : super(
@@ -599,15 +1084,32 @@ class $$UsersTableTableManager
               .map(
                 (e) => (
                   e.readTable<$UsersTable, User>(table),
-                  BaseReferences<_$AppDatabase, $UsersTable, User>(
-                    db,
-                    table,
-                    e,
-                  ),
+                  $$UsersTableReferences(db, table, e),
                 ),
               )
               .toList(),
-          prefetchHooksCallback: null,
+          prefetchHooksCallback: ({waterGoalsRefs = false}) {
+            return PrefetchHooks(
+              db: db,
+              explicitlyWatchedTables: [if (waterGoalsRefs) db.waterGoals],
+              addJoins: null,
+              getPrefetchedDataCallback: (items) async {
+                return [
+                  if (waterGoalsRefs)
+                    await $_getPrefetchedData<User, $UsersTable, WaterGoal>(
+                      currentTable: table,
+                      referencedTable: $$UsersTableReferences
+                          ._waterGoalsRefsTable(db),
+                      managerFromTypedResult: (p0) =>
+                          $$UsersTableReferences(db, table, p0).waterGoalsRefs,
+                      referencedItemsForCurrentItem: (item, referencedItems) =>
+                          referencedItems.where((e) => e.userId == item.id),
+                      typedResults: items,
+                    ),
+                ];
+              },
+            );
+          },
         ),
       );
 }
@@ -622,9 +1124,339 @@ typedef $$UsersTableProcessedTableManager =
       $$UsersTableAnnotationComposer,
       $$UsersTableCreateCompanionBuilder,
       $$UsersTableUpdateCompanionBuilder,
-      (User, BaseReferences<_$AppDatabase, $UsersTable, User>),
+      (User, $$UsersTableReferences),
       User,
-      PrefetchHooks Function()
+      PrefetchHooks Function({bool waterGoalsRefs})
+    >;
+typedef $$WaterGoalsTableCreateCompanionBuilder =
+    WaterGoalsCompanion Function({
+      Value<int> id,
+      required int userId,
+      required int goal,
+      required String unit,
+      required DateTime createdAt,
+      required DateTime updatedAt,
+    });
+typedef $$WaterGoalsTableUpdateCompanionBuilder =
+    WaterGoalsCompanion Function({
+      Value<int> id,
+      Value<int> userId,
+      Value<int> goal,
+      Value<String> unit,
+      Value<DateTime> createdAt,
+      Value<DateTime> updatedAt,
+    });
+
+final class $$WaterGoalsTableReferences
+    extends BaseReferences<_$AppDatabase, $WaterGoalsTable, WaterGoal> {
+  $$WaterGoalsTableReferences(super.$_db, super.$_table, super.$_typedResult);
+
+  static $UsersTable _userIdTable(_$AppDatabase db) =>
+      db.users.createAlias('water_goals__user_id__users__id');
+
+  $$UsersTableProcessedTableManager get userId {
+    final $_column = $_itemColumn<int>('user_id')!;
+
+    final manager = $$UsersTableTableManager(
+      $_db,
+      $_db.users,
+    ).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_userIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
+}
+
+class $$WaterGoalsTableFilterComposer
+    extends Composer<_$AppDatabase, $WaterGoalsTable> {
+  $$WaterGoalsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get goal => $composableBuilder(
+    column: $table.goal,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get unit => $composableBuilder(
+    column: $table.unit,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  $$UsersTableFilterComposer get userId {
+    final $$UsersTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.userId,
+      referencedTable: $db.users,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$UsersTableFilterComposer(
+            $db: $db,
+            $table: $db.users,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$WaterGoalsTableOrderingComposer
+    extends Composer<_$AppDatabase, $WaterGoalsTable> {
+  $$WaterGoalsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get goal => $composableBuilder(
+    column: $table.goal,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get unit => $composableBuilder(
+    column: $table.unit,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  $$UsersTableOrderingComposer get userId {
+    final $$UsersTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.userId,
+      referencedTable: $db.users,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$UsersTableOrderingComposer(
+            $db: $db,
+            $table: $db.users,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$WaterGoalsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $WaterGoalsTable> {
+  $$WaterGoalsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<int> get goal =>
+      $composableBuilder(column: $table.goal, builder: (column) => column);
+
+  GeneratedColumn<String> get unit =>
+      $composableBuilder(column: $table.unit, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get updatedAt =>
+      $composableBuilder(column: $table.updatedAt, builder: (column) => column);
+
+  $$UsersTableAnnotationComposer get userId {
+    final $$UsersTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.userId,
+      referencedTable: $db.users,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$UsersTableAnnotationComposer(
+            $db: $db,
+            $table: $db.users,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$WaterGoalsTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $WaterGoalsTable,
+          WaterGoal,
+          $$WaterGoalsTableFilterComposer,
+          $$WaterGoalsTableOrderingComposer,
+          $$WaterGoalsTableAnnotationComposer,
+          $$WaterGoalsTableCreateCompanionBuilder,
+          $$WaterGoalsTableUpdateCompanionBuilder,
+          (WaterGoal, $$WaterGoalsTableReferences),
+          WaterGoal,
+          PrefetchHooks Function({bool userId})
+        > {
+  $$WaterGoalsTableTableManager(_$AppDatabase db, $WaterGoalsTable table)
+    : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$WaterGoalsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$WaterGoalsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$WaterGoalsTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                Value<int> userId = const Value.absent(),
+                Value<int> goal = const Value.absent(),
+                Value<String> unit = const Value.absent(),
+                Value<DateTime> createdAt = const Value.absent(),
+                Value<DateTime> updatedAt = const Value.absent(),
+              }) => WaterGoalsCompanion(
+                id: id,
+                userId: userId,
+                goal: goal,
+                unit: unit,
+                createdAt: createdAt,
+                updatedAt: updatedAt,
+              ),
+          createCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                required int userId,
+                required int goal,
+                required String unit,
+                required DateTime createdAt,
+                required DateTime updatedAt,
+              }) => WaterGoalsCompanion.insert(
+                id: id,
+                userId: userId,
+                goal: goal,
+                unit: unit,
+                createdAt: createdAt,
+                updatedAt: updatedAt,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable<$WaterGoalsTable, WaterGoal>(table),
+                  $$WaterGoalsTableReferences(db, table, e),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback: ({userId = false}) {
+            return PrefetchHooks(
+              db: db,
+              explicitlyWatchedTables: [],
+              addJoins:
+                  <
+                    T extends TableManagerState<
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic
+                    >
+                  >(state) {
+                    if (userId) {
+                      state =
+                          state.withJoin(
+                                currentTable: table,
+                                currentColumn: table.userId,
+                                referencedTable: $$WaterGoalsTableReferences
+                                    ._userIdTable(db),
+                                referencedColumn: $$WaterGoalsTableReferences
+                                    ._userIdTable(db)
+                                    .id,
+                              )
+                              as T;
+                    }
+
+                    return state;
+                  },
+              getPrefetchedDataCallback: (items) async {
+                return [];
+              },
+            );
+          },
+        ),
+      );
+}
+
+typedef $$WaterGoalsTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $WaterGoalsTable,
+      WaterGoal,
+      $$WaterGoalsTableFilterComposer,
+      $$WaterGoalsTableOrderingComposer,
+      $$WaterGoalsTableAnnotationComposer,
+      $$WaterGoalsTableCreateCompanionBuilder,
+      $$WaterGoalsTableUpdateCompanionBuilder,
+      (WaterGoal, $$WaterGoalsTableReferences),
+      WaterGoal,
+      PrefetchHooks Function({bool userId})
     >;
 
 class $AppDatabaseManager {
@@ -632,4 +1464,6 @@ class $AppDatabaseManager {
   $AppDatabaseManager(this._db);
   $$UsersTableTableManager get users =>
       $$UsersTableTableManager(_db, _db.users);
+  $$WaterGoalsTableTableManager get waterGoals =>
+      $$WaterGoalsTableTableManager(_db, _db.waterGoals);
 }
