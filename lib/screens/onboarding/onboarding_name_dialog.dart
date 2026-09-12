@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
-class OnboardingNameDialog extends StatefulWidget {
+import '../../providers/user_name_provider.dart';
+
+class OnboardingNameDialog extends ConsumerStatefulWidget {
   const OnboardingNameDialog({super.key});
 
   static Future<void> show(BuildContext context) {
@@ -13,11 +16,13 @@ class OnboardingNameDialog extends StatefulWidget {
   }
 
   @override
-  State<OnboardingNameDialog> createState() => _OnboardingNameDialogState();
+  ConsumerState<OnboardingNameDialog> createState() =>
+      _OnboardingNameDialogState();
 }
 
-class _OnboardingNameDialogState extends State<OnboardingNameDialog> {
+class _OnboardingNameDialogState extends ConsumerState<OnboardingNameDialog> {
   final _controller = TextEditingController();
+  bool _isSubmitting = false;
 
   @override
   void dispose() {
@@ -25,12 +30,14 @@ class _OnboardingNameDialogState extends State<OnboardingNameDialog> {
     super.dispose();
   }
 
-  void _submit() {
+  Future<void> _submit() async {
     final name = _controller.text.trim();
-    if (name.isEmpty) return;
+    if (name.isEmpty || _isSubmitting) return;
 
-    // TODO: wire this up to save logic later
-    Navigator.of(context).pop();
+    setState(() => _isSubmitting = true);
+    await ref.read(userRepositoryProvider).createUser(name);
+
+    if (mounted) Navigator.of(context).pop();
   }
 
   @override
@@ -80,20 +87,26 @@ class _OnboardingNameDialogState extends State<OnboardingNameDialog> {
                   vertical: 14.h,
                 ),
               ),
-              onSubmitted: (_) => _submit(), // Enter key = continue
+              onSubmitted: (_) => _submit(),
             ),
             SizedBox(height: 20.h),
             SizedBox(
               width: double.infinity,
               child: FilledButton(
-                onPressed: _submit,
+                onPressed: _isSubmitting ? null : _submit,
                 style: FilledButton.styleFrom(
                   padding: EdgeInsets.symmetric(vertical: 14.h),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(14.r),
                   ),
                 ),
-                child: const Text('Continue'),
+                child: _isSubmitting
+                    ? SizedBox(
+                        width: 20.w,
+                        height: 20.w,
+                        child: const CircularProgressIndicator(strokeWidth: 2),
+                      )
+                    : const Text('Continue'),
               ),
             ),
           ],

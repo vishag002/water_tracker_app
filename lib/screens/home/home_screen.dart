@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:water_tracker_app/animations/glassy_water_bottle.dart';
 import 'package:water_tracker_app/animations/glassy_water_controller.dart';
@@ -8,16 +9,17 @@ import 'package:water_tracker_app/components/scaffold_custom.dart';
 import 'package:water_tracker_app/core/app_text_styles.dart';
 import 'package:water_tracker_app/core/constants/image_const.dart';
 import 'package:water_tracker_app/l10n/app_localizations.dart';
+import 'package:water_tracker_app/providers/user_name_provider.dart';
 import 'package:water_tracker_app/screens/onboarding/onboarding_name_dialog.dart';
 
-class HomeScreen extends StatefulWidget {
+class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({super.key});
 
   @override
-  State<HomeScreen> createState() => _HomeScreenState();
+  ConsumerState<HomeScreen> createState() => _HomeScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen> {
+class _HomeScreenState extends ConsumerState<HomeScreen> {
   // Adjust min/max/initial to your real daily-goal units (liters, ml, etc).
   // waveAmount / easeFactor / waveSpeed are the knobs from the demo sliders
   // -- tweak these directly as you dial in the feel.
@@ -36,6 +38,19 @@ class _HomeScreenState extends State<HomeScreen> {
   final int _streakDays = 3;
 
   @override
+  void initState() {
+    super.initState();
+    // Runs once after the first frame so we have a real BuildContext.
+    // If no profile exists yet, this is a fresh install -> collect a name.
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      final hasUser = await ref.read(userRepositoryProvider).hasUser();
+      if (!hasUser && mounted) {
+        OnboardingNameDialog.show(context);
+      }
+    });
+  }
+
+  @override
   void dispose() {
     _waterController.dispose();
     super.dispose();
@@ -44,6 +59,7 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     final localizations = AppLocalizations.of(context)!;
+    final userAsync = ref.watch(currentUserProvider);
 
     return ScaffoldCustom(
       showAppBar: false,
@@ -65,17 +81,11 @@ class _HomeScreenState extends State<HomeScreen> {
                       style: AppTextStyles.subtitleSemiBold,
                     ),
                     Text(
-                      "Vishag",
+                      userAsync.value?.name ?? '',
                       style: AppTextStyles.headingSemiBold,
                       maxLines: 1,
                     ),
                   ],
-                ),
-                IconButton(
-                  onPressed: () {
-                    OnboardingNameDialog.show(context);
-                  },
-                  icon: Icon(Icons.add_box_outlined),
                 ),
               ],
             ),
