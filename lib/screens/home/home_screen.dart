@@ -10,6 +10,7 @@ import 'package:water_tracker_app/core/app_text_styles.dart';
 import 'package:water_tracker_app/core/constants/image_const.dart';
 import 'package:water_tracker_app/l10n/app_localizations.dart';
 import 'package:water_tracker_app/providers/user_name_provider.dart';
+import 'package:water_tracker_app/providers/water_entry_provider.dart';
 import 'package:water_tracker_app/providers/water_goal_provider.dart';
 import 'package:water_tracker_app/screens/home/water_goal_edit_dialog.dart';
 import 'package:water_tracker_app/screens/onboarding/onboarding_name_dialog.dart';
@@ -68,11 +69,29 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     super.dispose();
   }
 
+  // New method — handles both the persisted entry and the bottle animation
+  // together so they can never drift out of sync.
+  Future<void> _addWaterEntry({
+    required int amountMl,
+    required double literFraction,
+  }) async {
+    final userId = ref.read(currentUserProvider).value?.id;
+    if (userId == null)
+      return; // profile not loaded yet — nothing to attach the entry to
+
+    await ref
+        .read(waterEntryRepositoryProvider)
+        .addEntry(userId: userId, amount: amountMl, unit: 'ml');
+    _waterController.addLevel(literFraction);
+  }
+
   @override
   Widget build(BuildContext context) {
     final localizations = AppLocalizations.of(context)!;
     final userAsync = ref.watch(currentUserProvider);
     final goalAsync = ref.watch(currentWaterGoalProvider);
+    final todaysIntakeMl = ref.watch(todaysWaterIntakeMlProvider);
+    final todaysIntakeLiters = todaysIntakeMl / 1000;
 
     return ScaffoldCustom(
       showAppBar: false,
@@ -99,6 +118,36 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                       maxLines: 1,
                     ),
                   ],
+                ),
+                IconButton(
+                  onPressed: () async {
+                    final user = ref.read(currentUserProvider).value;
+
+                    if (user == null) {
+                      debugPrint('DEBUG: No current user found');
+                      return;
+                    }
+
+                    final entries = await ref
+                        .read(waterEntryRepositoryProvider)
+                        .getEntries(user.id);
+
+                    debugPrint('========== WATER ENTRIES ==========');
+                    debugPrint('User ID: ${user.id}');
+                    debugPrint('Total entries: ${entries.length}');
+
+                    for (final entry in entries) {
+                      debugPrint(
+                        'ID: ${entry.id} | '
+                        'User ID: ${entry.userId} | '
+                        'Amount: ${entry.amount} ${entry.unit} | '
+                        'Added At: ${entry.addedAt}',
+                      );
+                    }
+
+                    debugPrint('===================================');
+                  },
+                  icon: const Icon(Icons.add),
                 ),
               ],
             ),
@@ -224,12 +273,11 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                             ),
                           ),
                           // Today's water status, overlaid on top of the
-                          // bottle/liquid. Plain text for now -- swap
-                          // '1.5L' / 'of 2L' for the real current-intake
-                          // and goal values once that's wired up. Positioned
-                          // as a fraction of bottleHeight (not a fixed px
-                          // offset) so it stays roughly centered on the
-                          // liquid regardless of how the bottle scales.
+                          // bottle/liquid. Driven by todaysWaterIntakeMlProvider
+                          // and currentWaterGoalProvider. Positioned as a
+                          // fraction of bottleHeight (not a fixed px offset)
+                          // so it stays roughly centered on the liquid
+                          // regardless of how the bottle scales.
                           Positioned(
                             top: bottleHeight * 0.52,
                             left: 0,
@@ -238,7 +286,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                               mainAxisSize: MainAxisSize.min,
                               children: [
                                 Text(
-                                  '1.5L',
+                                  '${todaysIntakeLiters.toStringAsFixed(2).replaceFirst(RegExp(r'\.?0+$'), '')}L',
                                   textAlign: TextAlign.center,
                                   style: AppTextStyles.headingSemiBold.copyWith(
                                     color: Colors.white,
@@ -291,19 +339,22 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 QuickAddButtonWidget(
-                  onTap: () => _waterController.addLevel(0.05),
+                  onTap: () =>
+                      _addWaterEntry(amountMl: 50, literFraction: 0.05),
                   imageUrl: ImageConstants.glass50ML,
-                  title: '50 ml',
+                  title: '+50 ml',
                 ),
                 QuickAddButtonWidget(
-                  onTap: () => _waterController.addLevel(0.5),
+                  onTap: () =>
+                      _addWaterEntry(amountMl: 250, literFraction: 0.25),
                   imageUrl: ImageConstants.bottle250ML,
-                  title: '+500 ml',
+                  title: '+250 ml',
                 ),
                 QuickAddButtonWidget(
-                  onTap: () => _waterController.addLevel(0.25),
+                  onTap: () =>
+                      _addWaterEntry(amountMl: 500, literFraction: 0.5),
                   imageUrl: ImageConstants.bottle500ML,
-                  title: '+250 ml',
+                  title: '+500 ml',
                 ),
               ],
             ),

@@ -809,18 +809,379 @@ class WaterGoalsCompanion extends UpdateCompanion<WaterGoal> {
   }
 }
 
+class $WaterEntriesTable extends WaterEntries
+    with TableInfo<$WaterEntriesTable, WaterEntry> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $WaterEntriesTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+    'id',
+    aliasedName,
+    false,
+    hasAutoIncrement: true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'PRIMARY KEY AUTOINCREMENT',
+    ),
+  );
+  static const VerificationMeta _userIdMeta = const VerificationMeta('userId');
+  @override
+  late final GeneratedColumn<int> userId = GeneratedColumn<int>(
+    'user_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'REFERENCES users (id)',
+    ),
+  );
+  static const VerificationMeta _amountMeta = const VerificationMeta('amount');
+  @override
+  late final GeneratedColumn<int> amount = GeneratedColumn<int>(
+    'amount',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _unitMeta = const VerificationMeta('unit');
+  @override
+  late final GeneratedColumn<String> unit = GeneratedColumn<String>(
+    'unit',
+    aliasedName,
+    false,
+    additionalChecks: GeneratedColumn.checkTextLength(
+      minTextLength: 1,
+      maxTextLength: 5,
+    ),
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _addedAtMeta = const VerificationMeta(
+    'addedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> addedAt = GeneratedColumn<DateTime>(
+    'added_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [id, userId, amount, unit, addedAt];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'water_entries';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<WaterEntry> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('user_id')) {
+      context.handle(
+        _userIdMeta,
+        userId.isAcceptableOrUnknown(data['user_id']!, _userIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_userIdMeta);
+    }
+    if (data.containsKey('amount')) {
+      context.handle(
+        _amountMeta,
+        amount.isAcceptableOrUnknown(data['amount']!, _amountMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_amountMeta);
+    }
+    if (data.containsKey('unit')) {
+      context.handle(
+        _unitMeta,
+        unit.isAcceptableOrUnknown(data['unit']!, _unitMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_unitMeta);
+    }
+    if (data.containsKey('added_at')) {
+      context.handle(
+        _addedAtMeta,
+        addedAt.isAcceptableOrUnknown(data['added_at']!, _addedAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_addedAtMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  WaterEntry map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return WaterEntry(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}id'],
+      )!,
+      userId: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}user_id'],
+      )!,
+      amount: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}amount'],
+      )!,
+      unit: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}unit'],
+      )!,
+      addedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}added_at'],
+      )!,
+    );
+  }
+
+  @override
+  $WaterEntriesTable createAlias(String alias) {
+    return $WaterEntriesTable(attachedDatabase, alias);
+  }
+}
+
+class WaterEntry extends DataClass implements Insertable<WaterEntry> {
+  final int id;
+
+  /// Links this entry to the owning profile in the Users table.
+  final int userId;
+
+  /// The amount consumed, in whatever `unit` says.
+  final int amount;
+
+  /// e.g. 'ml' or 'oz'.
+  final String unit;
+  final DateTime addedAt;
+  const WaterEntry({
+    required this.id,
+    required this.userId,
+    required this.amount,
+    required this.unit,
+    required this.addedAt,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    map['user_id'] = Variable<int>(userId);
+    map['amount'] = Variable<int>(amount);
+    map['unit'] = Variable<String>(unit);
+    map['added_at'] = Variable<DateTime>(addedAt);
+    return map;
+  }
+
+  WaterEntriesCompanion toCompanion(bool nullToAbsent) {
+    return WaterEntriesCompanion(
+      id: Value(id),
+      userId: Value(userId),
+      amount: Value(amount),
+      unit: Value(unit),
+      addedAt: Value(addedAt),
+    );
+  }
+
+  factory WaterEntry.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return WaterEntry(
+      id: serializer.fromJson<int>(json['id']),
+      userId: serializer.fromJson<int>(json['userId']),
+      amount: serializer.fromJson<int>(json['amount']),
+      unit: serializer.fromJson<String>(json['unit']),
+      addedAt: serializer.fromJson<DateTime>(json['addedAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'userId': serializer.toJson<int>(userId),
+      'amount': serializer.toJson<int>(amount),
+      'unit': serializer.toJson<String>(unit),
+      'addedAt': serializer.toJson<DateTime>(addedAt),
+    };
+  }
+
+  WaterEntry copyWith({
+    int? id,
+    int? userId,
+    int? amount,
+    String? unit,
+    DateTime? addedAt,
+  }) => WaterEntry(
+    id: id ?? this.id,
+    userId: userId ?? this.userId,
+    amount: amount ?? this.amount,
+    unit: unit ?? this.unit,
+    addedAt: addedAt ?? this.addedAt,
+  );
+  WaterEntry copyWithCompanion(WaterEntriesCompanion data) {
+    return WaterEntry(
+      id: data.id.present ? data.id.value : this.id,
+      userId: data.userId.present ? data.userId.value : this.userId,
+      amount: data.amount.present ? data.amount.value : this.amount,
+      unit: data.unit.present ? data.unit.value : this.unit,
+      addedAt: data.addedAt.present ? data.addedAt.value : this.addedAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('WaterEntry(')
+          ..write('id: $id, ')
+          ..write('userId: $userId, ')
+          ..write('amount: $amount, ')
+          ..write('unit: $unit, ')
+          ..write('addedAt: $addedAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(id, userId, amount, unit, addedAt);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is WaterEntry &&
+          other.id == this.id &&
+          other.userId == this.userId &&
+          other.amount == this.amount &&
+          other.unit == this.unit &&
+          other.addedAt == this.addedAt);
+}
+
+class WaterEntriesCompanion extends UpdateCompanion<WaterEntry> {
+  final Value<int> id;
+  final Value<int> userId;
+  final Value<int> amount;
+  final Value<String> unit;
+  final Value<DateTime> addedAt;
+  const WaterEntriesCompanion({
+    this.id = const Value.absent(),
+    this.userId = const Value.absent(),
+    this.amount = const Value.absent(),
+    this.unit = const Value.absent(),
+    this.addedAt = const Value.absent(),
+  });
+  WaterEntriesCompanion.insert({
+    this.id = const Value.absent(),
+    required int userId,
+    required int amount,
+    required String unit,
+    required DateTime addedAt,
+  }) : userId = Value(userId),
+       amount = Value(amount),
+       unit = Value(unit),
+       addedAt = Value(addedAt);
+  static Insertable<WaterEntry> custom({
+    Expression<int>? id,
+    Expression<int>? userId,
+    Expression<int>? amount,
+    Expression<String>? unit,
+    Expression<DateTime>? addedAt,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (userId != null) 'user_id': userId,
+      if (amount != null) 'amount': amount,
+      if (unit != null) 'unit': unit,
+      if (addedAt != null) 'added_at': addedAt,
+    });
+  }
+
+  WaterEntriesCompanion copyWith({
+    Value<int>? id,
+    Value<int>? userId,
+    Value<int>? amount,
+    Value<String>? unit,
+    Value<DateTime>? addedAt,
+  }) {
+    return WaterEntriesCompanion(
+      id: id ?? this.id,
+      userId: userId ?? this.userId,
+      amount: amount ?? this.amount,
+      unit: unit ?? this.unit,
+      addedAt: addedAt ?? this.addedAt,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (userId.present) {
+      map['user_id'] = Variable<int>(userId.value);
+    }
+    if (amount.present) {
+      map['amount'] = Variable<int>(amount.value);
+    }
+    if (unit.present) {
+      map['unit'] = Variable<String>(unit.value);
+    }
+    if (addedAt.present) {
+      map['added_at'] = Variable<DateTime>(addedAt.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('WaterEntriesCompanion(')
+          ..write('id: $id, ')
+          ..write('userId: $userId, ')
+          ..write('amount: $amount, ')
+          ..write('unit: $unit, ')
+          ..write('addedAt: $addedAt')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   $AppDatabaseManager get managers => $AppDatabaseManager(this);
   late final $UsersTable users = $UsersTable(this);
   late final $WaterGoalsTable waterGoals = $WaterGoalsTable(this);
+  late final $WaterEntriesTable waterEntries = $WaterEntriesTable(this);
   late final UsersDao usersDao = UsersDao(this as AppDatabase);
   late final WaterGoalsDao waterGoalsDao = WaterGoalsDao(this as AppDatabase);
+  late final WaterEntriesDao waterEntriesDao = WaterEntriesDao(
+    this as AppDatabase,
+  );
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
   @override
-  List<DatabaseSchemaEntity> get allSchemaEntities => [users, waterGoals];
+  List<DatabaseSchemaEntity> get allSchemaEntities => [
+    users,
+    waterGoals,
+    waterEntries,
+  ];
 }
 
 typedef $$UsersTableCreateCompanionBuilder =
@@ -859,6 +1220,24 @@ final class $$UsersTableReferences
     ).filter((f) => f.userId.id.sqlEquals($_itemColumn<int>('id')!));
 
     final cache = $_typedResult.readTableOrNull(_waterGoalsRefsTable($_db));
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: cache),
+    );
+  }
+
+  static MultiTypedResultKey<$WaterEntriesTable, List<WaterEntry>>
+  _waterEntriesRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
+    db.waterEntries,
+    aliasName: 'users__id__water_entries__user_id',
+  );
+
+  $$WaterEntriesTableProcessedTableManager get waterEntriesRefs {
+    final manager = $$WaterEntriesTableTableManager(
+      $_db,
+      $_db.waterEntries,
+    ).filter((f) => f.userId.id.sqlEquals($_itemColumn<int>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(_waterEntriesRefsTable($_db));
     return ProcessedTableManager(
       manager.$state.copyWith(prefetchedData: cache),
     );
@@ -919,6 +1298,31 @@ class $$UsersTableFilterComposer extends Composer<_$AppDatabase, $UsersTable> {
           }) => $$WaterGoalsTableFilterComposer(
             $db: $db,
             $table: $db.waterGoals,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+
+  Expression<bool> waterEntriesRefs(
+    Expression<bool> Function($$WaterEntriesTableFilterComposer f) f,
+  ) {
+    final $$WaterEntriesTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.waterEntries,
+      getReferencedColumn: (t) => t.userId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$WaterEntriesTableFilterComposer(
+            $db: $db,
+            $table: $db.waterEntries,
             $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
             joinBuilder: joinBuilder,
             $removeJoinBuilderFromRootComposer:
@@ -1020,6 +1424,31 @@ class $$UsersTableAnnotationComposer
     );
     return f(composer);
   }
+
+  Expression<T> waterEntriesRefs<T extends Object>(
+    Expression<T> Function($$WaterEntriesTableAnnotationComposer a) f,
+  ) {
+    final $$WaterEntriesTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.waterEntries,
+      getReferencedColumn: (t) => t.userId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$WaterEntriesTableAnnotationComposer(
+            $db: $db,
+            $table: $db.waterEntries,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
 }
 
 class $$UsersTableTableManager
@@ -1035,7 +1464,7 @@ class $$UsersTableTableManager
           $$UsersTableUpdateCompanionBuilder,
           (User, $$UsersTableReferences),
           User,
-          PrefetchHooks Function({bool waterGoalsRefs})
+          PrefetchHooks Function({bool waterGoalsRefs, bool waterEntriesRefs})
         > {
   $$UsersTableTableManager(_$AppDatabase db, $UsersTable table)
     : super(
@@ -1088,28 +1517,59 @@ class $$UsersTableTableManager
                 ),
               )
               .toList(),
-          prefetchHooksCallback: ({waterGoalsRefs = false}) {
-            return PrefetchHooks(
-              db: db,
-              explicitlyWatchedTables: [if (waterGoalsRefs) db.waterGoals],
-              addJoins: null,
-              getPrefetchedDataCallback: (items) async {
-                return [
-                  if (waterGoalsRefs)
-                    await $_getPrefetchedData<User, $UsersTable, WaterGoal>(
-                      currentTable: table,
-                      referencedTable: $$UsersTableReferences
-                          ._waterGoalsRefsTable(db),
-                      managerFromTypedResult: (p0) =>
-                          $$UsersTableReferences(db, table, p0).waterGoalsRefs,
-                      referencedItemsForCurrentItem: (item, referencedItems) =>
-                          referencedItems.where((e) => e.userId == item.id),
-                      typedResults: items,
-                    ),
-                ];
+          prefetchHooksCallback:
+              ({waterGoalsRefs = false, waterEntriesRefs = false}) {
+                return PrefetchHooks(
+                  db: db,
+                  explicitlyWatchedTables: [
+                    if (waterGoalsRefs) db.waterGoals,
+                    if (waterEntriesRefs) db.waterEntries,
+                  ],
+                  addJoins: null,
+                  getPrefetchedDataCallback: (items) async {
+                    return [
+                      if (waterGoalsRefs)
+                        await $_getPrefetchedData<User, $UsersTable, WaterGoal>(
+                          currentTable: table,
+                          referencedTable: $$UsersTableReferences
+                              ._waterGoalsRefsTable(db),
+                          managerFromTypedResult: (p0) =>
+                              $$UsersTableReferences(
+                                db,
+                                table,
+                                p0,
+                              ).waterGoalsRefs,
+                          referencedItemsForCurrentItem:
+                              (item, referencedItems) => referencedItems.where(
+                                (e) => e.userId == item.id,
+                              ),
+                          typedResults: items,
+                        ),
+                      if (waterEntriesRefs)
+                        await $_getPrefetchedData<
+                          User,
+                          $UsersTable,
+                          WaterEntry
+                        >(
+                          currentTable: table,
+                          referencedTable: $$UsersTableReferences
+                              ._waterEntriesRefsTable(db),
+                          managerFromTypedResult: (p0) =>
+                              $$UsersTableReferences(
+                                db,
+                                table,
+                                p0,
+                              ).waterEntriesRefs,
+                          referencedItemsForCurrentItem:
+                              (item, referencedItems) => referencedItems.where(
+                                (e) => e.userId == item.id,
+                              ),
+                          typedResults: items,
+                        ),
+                    ];
+                  },
+                );
               },
-            );
-          },
         ),
       );
 }
@@ -1126,7 +1586,7 @@ typedef $$UsersTableProcessedTableManager =
       $$UsersTableUpdateCompanionBuilder,
       (User, $$UsersTableReferences),
       User,
-      PrefetchHooks Function({bool waterGoalsRefs})
+      PrefetchHooks Function({bool waterGoalsRefs, bool waterEntriesRefs})
     >;
 typedef $$WaterGoalsTableCreateCompanionBuilder =
     WaterGoalsCompanion Function({
@@ -1458,6 +1918,317 @@ typedef $$WaterGoalsTableProcessedTableManager =
       WaterGoal,
       PrefetchHooks Function({bool userId})
     >;
+typedef $$WaterEntriesTableCreateCompanionBuilder =
+    WaterEntriesCompanion Function({
+      Value<int> id,
+      required int userId,
+      required int amount,
+      required String unit,
+      required DateTime addedAt,
+    });
+typedef $$WaterEntriesTableUpdateCompanionBuilder =
+    WaterEntriesCompanion Function({
+      Value<int> id,
+      Value<int> userId,
+      Value<int> amount,
+      Value<String> unit,
+      Value<DateTime> addedAt,
+    });
+
+final class $$WaterEntriesTableReferences
+    extends BaseReferences<_$AppDatabase, $WaterEntriesTable, WaterEntry> {
+  $$WaterEntriesTableReferences(super.$_db, super.$_table, super.$_typedResult);
+
+  static $UsersTable _userIdTable(_$AppDatabase db) =>
+      db.users.createAlias('water_entries__user_id__users__id');
+
+  $$UsersTableProcessedTableManager get userId {
+    final $_column = $_itemColumn<int>('user_id')!;
+
+    final manager = $$UsersTableTableManager(
+      $_db,
+      $_db.users,
+    ).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_userIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
+}
+
+class $$WaterEntriesTableFilterComposer
+    extends Composer<_$AppDatabase, $WaterEntriesTable> {
+  $$WaterEntriesTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get amount => $composableBuilder(
+    column: $table.amount,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get unit => $composableBuilder(
+    column: $table.unit,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get addedAt => $composableBuilder(
+    column: $table.addedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  $$UsersTableFilterComposer get userId {
+    final $$UsersTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.userId,
+      referencedTable: $db.users,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$UsersTableFilterComposer(
+            $db: $db,
+            $table: $db.users,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$WaterEntriesTableOrderingComposer
+    extends Composer<_$AppDatabase, $WaterEntriesTable> {
+  $$WaterEntriesTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get amount => $composableBuilder(
+    column: $table.amount,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get unit => $composableBuilder(
+    column: $table.unit,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get addedAt => $composableBuilder(
+    column: $table.addedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  $$UsersTableOrderingComposer get userId {
+    final $$UsersTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.userId,
+      referencedTable: $db.users,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$UsersTableOrderingComposer(
+            $db: $db,
+            $table: $db.users,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$WaterEntriesTableAnnotationComposer
+    extends Composer<_$AppDatabase, $WaterEntriesTable> {
+  $$WaterEntriesTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<int> get amount =>
+      $composableBuilder(column: $table.amount, builder: (column) => column);
+
+  GeneratedColumn<String> get unit =>
+      $composableBuilder(column: $table.unit, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get addedAt =>
+      $composableBuilder(column: $table.addedAt, builder: (column) => column);
+
+  $$UsersTableAnnotationComposer get userId {
+    final $$UsersTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.userId,
+      referencedTable: $db.users,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$UsersTableAnnotationComposer(
+            $db: $db,
+            $table: $db.users,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$WaterEntriesTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $WaterEntriesTable,
+          WaterEntry,
+          $$WaterEntriesTableFilterComposer,
+          $$WaterEntriesTableOrderingComposer,
+          $$WaterEntriesTableAnnotationComposer,
+          $$WaterEntriesTableCreateCompanionBuilder,
+          $$WaterEntriesTableUpdateCompanionBuilder,
+          (WaterEntry, $$WaterEntriesTableReferences),
+          WaterEntry,
+          PrefetchHooks Function({bool userId})
+        > {
+  $$WaterEntriesTableTableManager(_$AppDatabase db, $WaterEntriesTable table)
+    : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$WaterEntriesTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$WaterEntriesTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$WaterEntriesTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                Value<int> userId = const Value.absent(),
+                Value<int> amount = const Value.absent(),
+                Value<String> unit = const Value.absent(),
+                Value<DateTime> addedAt = const Value.absent(),
+              }) => WaterEntriesCompanion(
+                id: id,
+                userId: userId,
+                amount: amount,
+                unit: unit,
+                addedAt: addedAt,
+              ),
+          createCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                required int userId,
+                required int amount,
+                required String unit,
+                required DateTime addedAt,
+              }) => WaterEntriesCompanion.insert(
+                id: id,
+                userId: userId,
+                amount: amount,
+                unit: unit,
+                addedAt: addedAt,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable<$WaterEntriesTable, WaterEntry>(table),
+                  $$WaterEntriesTableReferences(db, table, e),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback: ({userId = false}) {
+            return PrefetchHooks(
+              db: db,
+              explicitlyWatchedTables: [],
+              addJoins:
+                  <
+                    T extends TableManagerState<
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic
+                    >
+                  >(state) {
+                    if (userId) {
+                      state =
+                          state.withJoin(
+                                currentTable: table,
+                                currentColumn: table.userId,
+                                referencedTable: $$WaterEntriesTableReferences
+                                    ._userIdTable(db),
+                                referencedColumn: $$WaterEntriesTableReferences
+                                    ._userIdTable(db)
+                                    .id,
+                              )
+                              as T;
+                    }
+
+                    return state;
+                  },
+              getPrefetchedDataCallback: (items) async {
+                return [];
+              },
+            );
+          },
+        ),
+      );
+}
+
+typedef $$WaterEntriesTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $WaterEntriesTable,
+      WaterEntry,
+      $$WaterEntriesTableFilterComposer,
+      $$WaterEntriesTableOrderingComposer,
+      $$WaterEntriesTableAnnotationComposer,
+      $$WaterEntriesTableCreateCompanionBuilder,
+      $$WaterEntriesTableUpdateCompanionBuilder,
+      (WaterEntry, $$WaterEntriesTableReferences),
+      WaterEntry,
+      PrefetchHooks Function({bool userId})
+    >;
 
 class $AppDatabaseManager {
   final _$AppDatabase _db;
@@ -1466,4 +2237,6 @@ class $AppDatabaseManager {
       $$UsersTableTableManager(_db, _db.users);
   $$WaterGoalsTableTableManager get waterGoals =>
       $$WaterGoalsTableTableManager(_db, _db.waterGoals);
+  $$WaterEntriesTableTableManager get waterEntries =>
+      $$WaterEntriesTableTableManager(_db, _db.waterEntries);
 }
