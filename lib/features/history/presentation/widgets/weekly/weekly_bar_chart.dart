@@ -3,23 +3,25 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:water_tracker_app/core/app_text_styles.dart';
 
+/// Purely presentational — all data comes from the caller
+/// (WeeklyOverviewCard), which is the only widget in this feature that
+/// talks to Riverpod for the bar chart.
 class WeeklyBarChart extends StatelessWidget {
-  const WeeklyBarChart({super.key});
+  const WeeklyBarChart({
+    super.key,
+    required this.dailyIntakeLiters,
+    required this.goalLiters,
+    required this.dayLabels,
+  });
 
-  // Demo values for the UI phase.
-  static const List<double> _weeklyIntake = [1.8, 2.1, 1.4, 2.0, 2.3, 1.7, 2.0];
+  /// Exactly 7 values, Monday first, Sunday last.
+  final List<double> dailyIntakeLiters;
 
-  static const double _dailyGoal = 2.0;
+  /// Exactly 7 short labels (e.g. 'Mon'..'Sun'), same order as
+  /// [dailyIntakeLiters].
+  final List<String> dayLabels;
 
-  static const List<String> _days = [
-    'Mon',
-    'Tue',
-    'Wed',
-    'Thu',
-    'Fri',
-    'Sat',
-    'Sun',
-  ];
+  final double goalLiters;
 
   @override
   Widget build(BuildContext context) {
@@ -28,12 +30,21 @@ class WeeklyBarChart extends StatelessWidget {
       color: theme.colorScheme.onSurface.withOpacity(0.6),
     );
 
+    final highestBar = dailyIntakeLiters.isEmpty
+        ? 0.0
+        : dailyIntakeLiters.reduce((a, b) => a > b ? a : b);
+    // Keep the goal line comfortably inside the chart even on weeks
+    // where every day is under goal, and make room above it when a day
+    // exceeds the goal.
+    final maxY = [highestBar, goalLiters, 1.0].reduce((a, b) => a > b ? a : b) +
+        0.5;
+
     return SizedBox(
       height: 220.h,
       child: BarChart(
         BarChartData(
           minY: 0,
-          maxY: 3,
+          maxY: maxY,
           alignment: BarChartAlignment.spaceAround,
 
           gridData: FlGridData(
@@ -53,7 +64,7 @@ class WeeklyBarChart extends StatelessWidget {
           extraLinesData: ExtraLinesData(
             horizontalLines: [
               HorizontalLine(
-                y: _dailyGoal,
+                y: goalLiters,
                 color: theme.colorScheme.primary,
                 strokeWidth: 1.5,
                 dashArray: [6, 4],
@@ -97,25 +108,25 @@ class WeeklyBarChart extends StatelessWidget {
                 getTitlesWidget: (value, meta) {
                   final index = value.toInt();
 
-                  if (index < 0 || index >= _days.length) {
+                  if (index < 0 || index >= dayLabels.length) {
                     return const SizedBox();
                   }
 
                   return Padding(
                     padding: EdgeInsets.only(top: 8.h),
-                    child: Text(_days[index], style: mutedTextStyle),
+                    child: Text(dayLabels[index], style: mutedTextStyle),
                   );
                 },
               ),
             ),
           ),
 
-          barGroups: List.generate(_weeklyIntake.length, (index) {
+          barGroups: List.generate(dailyIntakeLiters.length, (index) {
             return BarChartGroupData(
               x: index,
               barRods: [
                 BarChartRodData(
-                  toY: _weeklyIntake[index],
+                  toY: dailyIntakeLiters[index],
                   width: 18.w,
                   color: theme.colorScheme.primary,
                   borderRadius: BorderRadius.only(

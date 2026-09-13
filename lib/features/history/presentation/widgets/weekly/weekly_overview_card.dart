@@ -1,16 +1,29 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:intl/intl.dart';
 import 'package:water_tracker_app/core/app_text_styles.dart';
+import 'package:water_tracker_app/features/history/domain/calculators/weekly_history_calculator.dart';
+import 'package:water_tracker_app/features/history/presentation/providers/weekly_history_provider.dart';
 import 'package:water_tracker_app/features/history/presentation/widgets/history_card.dart';
 
 import 'weekly_bar_chart.dart';
 
-class WeeklyOverviewCard extends StatelessWidget {
-  const WeeklyOverviewCard({super.key});
+/// Bar chart of daily intake for the week containing [date], sourced
+/// from [weeklyHistoryProvider]. Passes plain values down to the
+/// presentation-only [WeeklyBarChart].
+class WeeklyOverviewCard extends ConsumerWidget {
+  const WeeklyOverviewCard({super.key, required this.date});
+
+  final DateTime date;
+
+  static final DateFormat _shortDayFormat = DateFormat('EEE');
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
+    final weekStart = WeeklyHistoryCalculator.startOfWeek(date);
+    final resultAsync = ref.watch(weeklyHistoryProvider(weekStart));
 
     return HistoryCard(
       padding: EdgeInsets.fromLTRB(16.w, 18.h, 16.w, 14.h),
@@ -35,7 +48,38 @@ class WeeklyOverviewCard extends StatelessWidget {
 
           SizedBox(height: 12.h),
 
-          const WeeklyBarChart(),
+          resultAsync.when(
+            data: (result) => WeeklyBarChart(
+              dailyIntakeLiters: result.days
+                  .map((day) => day.totalMl / 1000)
+                  .toList(),
+              dayLabels: result.days
+                  .map((day) => _shortDayFormat.format(day.date))
+                  .toList(),
+              goalLiters: (result.goalMl ?? 2000) / 1000,
+            ),
+            loading: () => SizedBox(
+              height: 220.h,
+              child: const Center(
+                child: SizedBox(
+                  width: 20,
+                  height: 20,
+                  child: CircularProgressIndicator(strokeWidth: 2),
+                ),
+              ),
+            ),
+            error: (error, stackTrace) => SizedBox(
+              height: 220.h,
+              child: Center(
+                child: Text(
+                  'Couldn\'t load this week\'s overview.',
+                  style: AppTextStyles.bodyMedium.copyWith(
+                    color: theme.colorScheme.error,
+                  ),
+                ),
+              ),
+            ),
+          ),
 
           SizedBox(height: 4.h),
 

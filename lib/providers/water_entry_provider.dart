@@ -29,6 +29,21 @@ final waterEntriesForDayProvider =
           .watchEntriesForDay(user.id, day);
     });
 
+/// Live list of the current user's entries for a 7-day window starting
+/// at [weekStart]. [weekStart] must already be date-only and normalized
+/// to Monday — see `WeeklyHistoryCalculator.startOfWeek`. Powers the
+/// History Week tab.
+final waterEntriesForWeekProvider =
+    StreamProvider.family<List<WaterEntry>, DateTime>((ref, weekStart) {
+      final user = ref.watch(currentUserProvider).value;
+      if (user == null) return Stream.value(const []);
+
+      final weekEnd = weekStart.add(const Duration(days: 7));
+      return ref
+          .watch(waterEntryRepositoryProvider)
+          .watchEntriesForRange(user.id, weekStart, weekEnd);
+    });
+
 /// "Today", resolved once per provider read. Note: this does not
 /// automatically roll over at midnight while the app stays open in the
 /// background — acceptable for MVP, worth revisiting if that becomes

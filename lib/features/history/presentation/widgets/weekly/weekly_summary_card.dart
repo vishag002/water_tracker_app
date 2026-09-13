@@ -1,44 +1,73 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import 'package:water_tracker_app/core/app_text_styles.dart';
+import 'package:water_tracker_app/core/services/general_service.dart';
+import 'package:water_tracker_app/features/history/domain/calculators/weekly_history_calculator.dart';
+import 'package:water_tracker_app/features/history/presentation/providers/weekly_history_provider.dart';
 import 'package:water_tracker_app/features/history/presentation/widgets/history_card.dart';
 
-class WeeklySummaryCard extends StatelessWidget {
-  const WeeklySummaryCard({super.key});
+/// Total intake and total entries for the week containing [date],
+/// sourced from [weeklyHistoryProvider] (real `water_entries` data).
+class WeeklySummaryCard extends ConsumerWidget {
+  const WeeklySummaryCard({super.key, required this.date});
 
-  // Demo values for the UI phase.
-  static const double totalIntake = 13.3;
-  static const int totalEntries = 42;
+  final DateTime date;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
+    final weekStart = WeeklyHistoryCalculator.startOfWeek(date);
+    final resultAsync = ref.watch(weeklyHistoryProvider(weekStart));
 
     return HistoryCard(
       padding: EdgeInsets.symmetric(vertical: 16.h, horizontal: 12.w),
-      child: Row(
-        children: [
-          Expanded(
-            child: _buildStat(
-              theme,
-              icon: Icons.water_drop_outlined,
-              value: '${totalIntake.toStringAsFixed(1)} L',
-              label: 'Total Intake',
+      child: resultAsync.when(
+        data: (result) => Row(
+          children: [
+            Expanded(
+              child: _buildStat(
+                theme,
+                icon: Icons.water_drop_outlined,
+                value: GeneralService.formatWater(result.totalIntakeMl),
+                label: 'Total Intake',
+              ),
+            ),
+
+            SizedBox(width: 10.w),
+
+            Expanded(
+              child: _buildStat(
+                theme,
+                icon: Icons.local_drink_outlined,
+                value: '${result.totalEntries}',
+                label: 'Total Entries',
+              ),
+            ),
+          ],
+        ),
+        loading: () => SizedBox(
+          height: 62.h,
+          child: const Center(
+            child: SizedBox(
+              width: 20,
+              height: 20,
+              child: CircularProgressIndicator(strokeWidth: 2),
             ),
           ),
-
-          SizedBox(width: 10.w),
-
-          Expanded(
-            child: _buildStat(
-              theme,
-              icon: Icons.local_drink_outlined,
-              value: '$totalEntries',
-              label: 'Total Entries',
+        ),
+        error: (error, stackTrace) => SizedBox(
+          height: 62.h,
+          child: Center(
+            child: Text(
+              'Couldn\'t load this week\'s summary.',
+              style: AppTextStyles.bodyRegular.copyWith(
+                color: theme.colorScheme.error,
+              ),
             ),
           ),
-        ],
+        ),
       ),
     );
   }

@@ -76,7 +76,11 @@ class DailyProgressCard extends ConsumerWidget {
   }
 
   Widget _buildStatus({required Widget child}) {
-    return SizedBox(width: 150.w, height: 150.w, child: Center(child: child));
+    return SizedBox(
+      width: 150.w,
+      height: 150.w,
+      child: Center(child: child),
+    );
   }
 
   Widget _buildRing(

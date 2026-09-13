@@ -1,18 +1,30 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import 'package:water_tracker_app/core/app_text_styles.dart';
+import 'package:water_tracker_app/features/history/domain/calculators/weekly_history_calculator.dart';
+import 'package:water_tracker_app/features/history/presentation/providers/weekly_history_provider.dart';
 
-class WeeklyGoalAchievement extends StatelessWidget {
-  const WeeklyGoalAchievement({super.key});
+/// "X of 7 days reached your daily goal" for the week containing [date],
+/// sourced from [weeklyHistoryProvider].
+class WeeklyGoalAchievement extends ConsumerWidget {
+  const WeeklyGoalAchievement({super.key, required this.date});
 
-  // Demo value for the UI phase.
-  static const int goalDays = 4;
-  static const int totalDays = 7;
+  final DateTime date;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
+    final weekStart = WeeklyHistoryCalculator.startOfWeek(date);
+    final resultAsync = ref.watch(weeklyHistoryProvider(weekStart));
+
+    final message = resultAsync.when(
+      data: (result) =>
+          '${result.daysGoalReached} of ${result.days.length} days reached your daily goal',
+      loading: () => 'Checking this week\'s goal progress…',
+      error: (error, stackTrace) => 'Couldn\'t load this week\'s goal progress.',
+    );
 
     return Container(
       width: double.infinity,
@@ -41,7 +53,7 @@ class WeeklyGoalAchievement extends StatelessWidget {
 
           Expanded(
             child: Text(
-              '$goalDays of $totalDays days reached your daily goal',
+              message,
               style: AppTextStyles.bodySmallMedium.copyWith(
                 fontWeight: FontWeight.w600,
                 color: theme.colorScheme.onSurface,

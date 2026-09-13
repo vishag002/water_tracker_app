@@ -68,6 +68,41 @@ class WaterEntriesDao extends DatabaseAccessor<AppDatabase>
         .watch();
   }
 
+  /// Entries in [start, end) — end-exclusive, same convention as the
+  /// single-day queries above. Used for the History Week tab so the
+  /// whole week is fetched in one query instead of seven.
+  Future<List<WaterEntry>> getEntriesForRange(
+    int userId,
+    DateTime start,
+    DateTime end,
+  ) {
+    return (select(waterEntries)
+          ..where(
+            (t) =>
+                t.userId.equals(userId) &
+                t.addedAt.isBiggerOrEqualValue(start) &
+                t.addedAt.isSmallerThanValue(end),
+          )
+          ..orderBy([(t) => OrderingTerm.desc(t.addedAt)]))
+        .get();
+  }
+
+  Stream<List<WaterEntry>> watchEntriesForRange(
+    int userId,
+    DateTime start,
+    DateTime end,
+  ) {
+    return (select(waterEntries)
+          ..where(
+            (t) =>
+                t.userId.equals(userId) &
+                t.addedAt.isBiggerOrEqualValue(start) &
+                t.addedAt.isSmallerThanValue(end),
+          )
+          ..orderBy([(t) => OrderingTerm.desc(t.addedAt)]))
+        .watch();
+  }
+
   Future<int> deleteEntry(int id) {
     return (delete(waterEntries)..where((t) => t.id.equals(id))).go();
   }

@@ -31,5 +31,17 @@ class WaterEntryRepository {
   Stream<List<WaterEntry>> watchEntriesForDay(int userId, DateTime day) =>
       _db.waterEntriesDao.watchEntriesForDay(userId, day);
 
+  Future<List<WaterEntry>> getEntriesForRange(
+    int userId,
+    DateTime start,
+    DateTime end,
+  ) => _db.waterEntriesDao.getEntriesForRange(userId, start, end);
+
+  Stream<List<WaterEntry>> watchEntriesForRange(
+    int userId,
+    DateTime start,
+    DateTime end,
+  ) => _db.waterEntriesDao.watchEntriesForRange(userId, start, end);
+
   Future<void> deleteEntry(int id) => _db.waterEntriesDao.deleteEntry(id);
 }

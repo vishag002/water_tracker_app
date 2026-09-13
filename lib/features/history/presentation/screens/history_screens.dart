@@ -7,6 +7,7 @@ import 'package:water_tracker_app/features/history/presentation/widgets/daily/da
 import 'package:water_tracker_app/features/history/presentation/widgets/monthly/monthly_heatmap.dart';
 import 'package:water_tracker_app/features/history/presentation/widgets/monthly/monthly_overview_card.dart';
 import 'package:water_tracker_app/features/history/presentation/widgets/monthly/selected_day_history.dart';
+import 'package:water_tracker_app/features/history/presentation/widgets/weekly/weekly_daily_breakdown.dart';
 import 'package:water_tracker_app/features/history/presentation/widgets/weekly/weekly_goal_achievement.dart';
 import 'package:water_tracker_app/features/history/presentation/widgets/weekly/weekly_overview_card.dart';
 import 'package:water_tracker_app/features/history/presentation/widgets/weekly/weekly_summary_card.dart';
@@ -84,11 +85,13 @@ class _HistoryScreenState extends State<HistoryScreen> {
       case HistoryView.weekly:
         return Column(
           children: [
-            const WeeklyOverviewCard(),
+            WeeklyOverviewCard(date: _selectedDate),
             SizedBox(height: 12.h),
-            const WeeklySummaryCard(),
+            WeeklySummaryCard(date: _selectedDate),
             SizedBox(height: 12.h),
-            const WeeklyGoalAchievement(),
+            WeeklyGoalAchievement(date: _selectedDate),
+            SizedBox(height: 12.h),
+            WeeklyDailyBreakdown(date: _selectedDate),
           ],
         );
 
