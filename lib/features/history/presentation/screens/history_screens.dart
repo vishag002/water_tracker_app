@@ -26,9 +26,13 @@ class HistoryScreen extends StatefulWidget {
 class _HistoryScreenState extends State<HistoryScreen> {
   HistoryView _selectedView = HistoryView.daily;
 
+  // Single source of truth for the currently selected date across every
+  // view. For Month, this also doubles as the selected calendar day: the
+  // heatmap and SelectedDayHistory both read/write this same value
+  // (via onDateSelected below) instead of a separate, disconnected
+  // "_selectedMonthDay" state that could drift out of sync with the
+  // month HistoryDateSelector is showing.
   DateTime _selectedDate = DateTime.now();
-
-  DateTime _selectedMonthDay = DateTime.now();
 
   @override
   Widget build(BuildContext context) {
@@ -98,22 +102,22 @@ class _HistoryScreenState extends State<HistoryScreen> {
       case HistoryView.monthly:
         return Column(
           children: [
-            MonthlyOverviewCard(),
+            MonthlyOverviewCard(date: _selectedDate),
 
             SizedBox(height: 12.h),
 
             MonthlyHeatmap(
-              selectedDate: _selectedMonthDay,
+              selectedDate: _selectedDate,
               onDateSelected: (date) {
                 setState(() {
-                  _selectedMonthDay = date;
+                  _selectedDate = date;
                 });
               },
             ),
 
             SizedBox(height: 12.h),
 
-            SelectedDayHistory(selectedDate: _selectedMonthDay),
+            SelectedDayHistory(selectedDate: _selectedDate),
           ],
         );
     }

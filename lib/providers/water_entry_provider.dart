@@ -44,6 +44,24 @@ final waterEntriesForWeekProvider =
           .watchEntriesForRange(user.id, weekStart, weekEnd);
     });
 
+/// Live list of the current user's entries for the calendar month
+/// starting at [monthStart]. [monthStart] must already be date-only and
+/// normalized to the 1st of the month — see
+/// `MonthlyHistoryCalculator.startOfMonth`. Powers the History Month tab.
+/// Reuses the same generic `watchEntriesForRange` query as
+/// [waterEntriesForWeekProvider] — one query for the whole month instead
+/// of one per day.
+final waterEntriesForMonthProvider =
+    StreamProvider.family<List<WaterEntry>, DateTime>((ref, monthStart) {
+      final user = ref.watch(currentUserProvider).value;
+      if (user == null) return Stream.value(const []);
+
+      final monthEnd = DateTime(monthStart.year, monthStart.month + 1, 1);
+      return ref
+          .watch(waterEntryRepositoryProvider)
+          .watchEntriesForRange(user.id, monthStart, monthEnd);
+    });
+
 /// "Today", resolved once per provider read. Note: this does not
 /// automatically roll over at midnight while the app stays open in the
 /// background — acceptable for MVP, worth revisiting if that becomes

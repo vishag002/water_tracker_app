@@ -1,35 +1,36 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:intl/intl.dart';
 
 import 'package:water_tracker_app/core/app_text_styles.dart';
+import 'package:water_tracker_app/core/services/general_service.dart';
+import 'package:water_tracker_app/database/app_database.dart';
 import 'package:water_tracker_app/features/history/presentation/widgets/history_card.dart';
+import 'package:water_tracker_app/providers/water_entry_provider.dart';
+import 'package:water_tracker_app/providers/water_goal_provider.dart';
+import 'package:water_tracker_app/screens/home/domain/calculators/daily_intake_calculator.dart';
 
-class SelectedDayHistory extends StatelessWidget {
+/// Same default the app seeds on first launch (see HomeScreen) — used
+/// only as a display fallback before the real goal has loaded. Mirrors
+/// weeklyHistoryProvider's fallback.
+const int _defaultGoalLiters = 2;
+
+/// Real entries for [selectedDate], reusing the existing
+/// [waterEntriesForDayProvider] — the same provider the Daily tab
+/// watches — rather than a second day-query mechanism.
+class SelectedDayHistory extends ConsumerWidget {
   final DateTime selectedDate;
 
   const SelectedDayHistory({super.key, required this.selectedDate});
 
-  // Demo data for the UI phase.
-  static const List<_WaterEntry> _entries = [
-    _WaterEntry(time: '8:00 AM', amount: 300),
-    _WaterEntry(time: '10:30 AM', amount: 250),
-    _WaterEntry(time: '1:00 PM', amount: 400),
-    _WaterEntry(time: '4:30 PM', amount: 350),
-    _WaterEntry(time: '7:00 PM', amount: 500),
-    _WaterEntry(time: '9:00 PM', amount: 300),
-  ];
-
-  static const int dailyGoal = 2000;
+  static final DateFormat _timeFormat = DateFormat('h:mm a');
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
-
-    const totalIntake = 2100;
-
-    final goalReached = totalIntake >= dailyGoal;
-    final progress = (totalIntake / dailyGoal).clamp(0.0, 1.0);
+    final entriesAsync = ref.watch(waterEntriesForDayProvider(selectedDate));
+    final goalAsync = ref.watch(currentWaterGoalProvider);
 
     return HistoryCard(
       child: Column(
@@ -44,90 +45,26 @@ class SelectedDayHistory extends StatelessWidget {
 
           SizedBox(height: 16.h),
 
-          Row(
-            children: [
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      '${(totalIntake / 1000).toStringAsFixed(1)} L',
-                      style: AppTextStyles.headingMedium.copyWith(
-                        color: theme.colorScheme.onSurface,
-                      ),
-                    ),
-                    SizedBox(height: 2.h),
-                    Text(
-                      'of ${(dailyGoal / 1000).toStringAsFixed(1)} L',
-                      style: AppTextStyles.bodySmallMedium.copyWith(
-                        color: theme.colorScheme.onSurface.withOpacity(0.6),
-                      ),
-                    ),
-                  ],
+          entriesAsync.when(
+            data: (entries) => _buildBody(theme, entries, goalAsync.value),
+            loading: () => Padding(
+              padding: EdgeInsets.symmetric(vertical: 24.h),
+              child: const Center(
+                child: SizedBox(
+                  width: 20,
+                  height: 20,
+                  child: CircularProgressIndicator(strokeWidth: 2),
                 ),
               ),
-
-              Container(
-                padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 6.h),
-                decoration: BoxDecoration(
-                  color: goalReached
-                      ? theme.colorScheme.primary.withOpacity(0.08)
-                      : theme.colorScheme.onSurface.withOpacity(0.05),
-                  borderRadius: BorderRadius.circular(20.r),
-                ),
-                child: Text(
-                  goalReached ? 'Goal Reached' : 'Goal Not Reached',
-                  style: AppTextStyles.captionXsMedium.copyWith(
-                    color: goalReached
-                        ? theme.colorScheme.primary
-                        : theme.colorScheme.onSurface.withOpacity(0.6),
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ),
-            ],
-          ),
-
-          SizedBox(height: 12.h),
-
-          ClipRRect(
-            borderRadius: BorderRadius.circular(10.r),
-            child: LinearProgressIndicator(
-              value: progress,
-              minHeight: 6.h,
-              backgroundColor: theme.colorScheme.primary.withOpacity(0.08),
-              valueColor: AlwaysStoppedAnimation(theme.colorScheme.primary),
             ),
-          ),
-
-          SizedBox(height: 20.h),
-
-          Row(
-            children: [
-              Text(
-                'Intake History',
-                style: AppTextStyles.titleMedium.copyWith(
-                  color: theme.colorScheme.onSurface,
+            error: (error, stackTrace) => Padding(
+              padding: EdgeInsets.symmetric(vertical: 16.h),
+              child: Text(
+                'Couldn\'t load this day\'s entries.',
+                style: AppTextStyles.bodyRegular.copyWith(
+                  color: theme.colorScheme.error,
                 ),
               ),
-              const Spacer(),
-              Text(
-                '${_entries.length} entries',
-                style: AppTextStyles.captionXsMedium.copyWith(
-                  color: theme.colorScheme.onSurface.withOpacity(0.6),
-                ),
-              ),
-            ],
-          ),
-
-          SizedBox(height: 14.h),
-
-          ...List.generate(
-            _entries.length,
-            (index) => _buildEntry(
-              theme,
-              _entries[index],
-              isLast: index == _entries.length - 1,
             ),
           ),
         ],
@@ -135,7 +72,134 @@ class SelectedDayHistory extends StatelessWidget {
     );
   }
 
-  Widget _buildEntry(ThemeData theme, _WaterEntry entry, {required bool isLast}) {
+  Widget _buildBody(
+    ThemeData theme,
+    List<WaterEntry> entries,
+    WaterGoal? goal,
+  ) {
+    final goalMl = (goal?.goal ?? _defaultGoalLiters) * 1000;
+    final totalIntake = DailyIntakeCalculator.totalMl(
+      entries.map((e) => e.amount).toList(),
+    );
+    final goalReached = goalMl > 0 && totalIntake >= goalMl;
+    final progress = goalMl > 0
+        ? (totalIntake / goalMl).clamp(0.0, 1.0)
+        : 0.0;
+
+    // Oldest first, matching a chronological timeline read top-to-bottom.
+    final sortedEntries = [...entries]
+      ..sort((a, b) => a.addedAt.compareTo(b.addedAt));
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    GeneralService.formatWater(totalIntake),
+                    style: AppTextStyles.headingMedium.copyWith(
+                      color: theme.colorScheme.onSurface,
+                    ),
+                  ),
+                  SizedBox(height: 2.h),
+                  Text(
+                    'of ${GeneralService.formatWater(goalMl)}',
+                    style: AppTextStyles.bodySmallMedium.copyWith(
+                      color: theme.colorScheme.onSurface.withOpacity(0.6),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+
+            Container(
+              padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 6.h),
+              decoration: BoxDecoration(
+                color: goalReached
+                    ? theme.colorScheme.primary.withOpacity(0.08)
+                    : theme.colorScheme.onSurface.withOpacity(0.05),
+                borderRadius: BorderRadius.circular(20.r),
+              ),
+              child: Text(
+                goalReached ? 'Goal Reached' : 'Goal Not Reached',
+                style: AppTextStyles.captionXsMedium.copyWith(
+                  color: goalReached
+                      ? theme.colorScheme.primary
+                      : theme.colorScheme.onSurface.withOpacity(0.6),
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+          ],
+        ),
+
+        SizedBox(height: 12.h),
+
+        ClipRRect(
+          borderRadius: BorderRadius.circular(10.r),
+          child: LinearProgressIndicator(
+            value: progress,
+            minHeight: 6.h,
+            backgroundColor: theme.colorScheme.primary.withOpacity(0.08),
+            valueColor: AlwaysStoppedAnimation(theme.colorScheme.primary),
+          ),
+        ),
+
+        SizedBox(height: 20.h),
+
+        Row(
+          children: [
+            Text(
+              'Intake History',
+              style: AppTextStyles.titleMedium.copyWith(
+                color: theme.colorScheme.onSurface,
+              ),
+            ),
+            const Spacer(),
+            Text(
+              '${sortedEntries.length} '
+              '${sortedEntries.length == 1 ? 'entry' : 'entries'}',
+              style: AppTextStyles.captionXsMedium.copyWith(
+                color: theme.colorScheme.onSurface.withOpacity(0.6),
+              ),
+            ),
+          ],
+        ),
+
+        SizedBox(height: 14.h),
+
+        if (sortedEntries.isEmpty)
+          Padding(
+            padding: EdgeInsets.symmetric(vertical: 8.h),
+            child: Text(
+              'No entries for this day.',
+              style: AppTextStyles.bodySmallMedium.copyWith(
+                color: theme.colorScheme.onSurface.withOpacity(0.5),
+              ),
+            ),
+          )
+        else
+          ...List.generate(
+            sortedEntries.length,
+            (index) => _buildEntry(
+              theme,
+              sortedEntries[index],
+              isLast: index == sortedEntries.length - 1,
+            ),
+          ),
+      ],
+    );
+  }
+
+  Widget _buildEntry(
+    ThemeData theme,
+    WaterEntry entry, {
+    required bool isLast,
+  }) {
     return SizedBox(
       height: 52.h,
       child: Row(
@@ -171,7 +235,7 @@ class SelectedDayHistory extends StatelessWidget {
             child: Row(
               children: [
                 Text(
-                  entry.time,
+                  _timeFormat.format(entry.addedAt),
                   style: AppTextStyles.bodySmallSemiBold.copyWith(
                     color: theme.colorScheme.onSurface,
                   ),
@@ -192,11 +256,4 @@ class SelectedDayHistory extends StatelessWidget {
       ),
     );
   }
-}
-
-class _WaterEntry {
-  final String time;
-  final int amount;
-
-  const _WaterEntry({required this.time, required this.amount});
 }

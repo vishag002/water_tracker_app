@@ -1,19 +1,28 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+
 import 'package:water_tracker_app/core/app_text_styles.dart';
+import 'package:water_tracker_app/core/services/general_service.dart';
+import 'package:water_tracker_app/features/history/domain/calculators/monthly_history_calculator.dart';
+import 'package:water_tracker_app/features/history/presentation/providers/monthly_history_provider.dart';
 import 'package:water_tracker_app/features/history/presentation/widgets/history_card.dart';
 
-class MonthlyOverviewCard extends StatelessWidget {
-  const MonthlyOverviewCard({super.key});
+/// Goal-reached days, total intake, and completion percentage for the
+/// month containing [date], sourced from [monthlyHistoryProvider] (real
+/// `water_entries` data). Completion is calculated in
+/// [MonthlyHistoryCalculator] — see `completionPercent` — not derived
+/// here in the widget.
+class MonthlyOverviewCard extends ConsumerWidget {
+  const MonthlyOverviewCard({super.key, required this.date});
 
-  // Demo values for the UI phase.
-  static const int goalDays = 22;
-  static const double totalIntake = 45.2;
-  static const int completionRate = 73;
+  final DateTime date;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
+    final monthStart = MonthlyHistoryCalculator.startOfMonth(date);
+    final resultAsync = ref.watch(monthlyHistoryProvider(monthStart));
 
     return HistoryCard(
       padding: EdgeInsets.symmetric(vertical: 18.h, horizontal: 12.w),
@@ -32,36 +41,59 @@ class MonthlyOverviewCard extends StatelessWidget {
 
           SizedBox(height: 20.h),
 
-          Row(
-            children: [
-              Expanded(
-                child: _buildStat(
-                  theme,
-                  value: '$goalDays',
-                  label: 'Goal Days',
+          resultAsync.when(
+            data: (result) => Row(
+              children: [
+                Expanded(
+                  child: _buildStat(
+                    theme,
+                    value: '${result.daysGoalReached}',
+                    label: 'Goal Days',
+                  ),
+                ),
+
+                _buildDivider(theme),
+
+                Expanded(
+                  child: _buildStat(
+                    theme,
+                    value: GeneralService.formatWater(result.totalIntakeMl),
+                    label: 'Total Intake',
+                  ),
+                ),
+
+                _buildDivider(theme),
+
+                Expanded(
+                  child: _buildStat(
+                    theme,
+                    value: '${result.completionPercent.round()}%',
+                    label: 'Completion',
+                  ),
+                ),
+              ],
+            ),
+            loading: () => SizedBox(
+              height: 62.h,
+              child: const Center(
+                child: SizedBox(
+                  width: 20,
+                  height: 20,
+                  child: CircularProgressIndicator(strokeWidth: 2),
                 ),
               ),
-
-              _buildDivider(theme),
-
-              Expanded(
-                child: _buildStat(
-                  theme,
-                  value: '${totalIntake.toStringAsFixed(1)} L',
-                  label: 'Total Intake',
+            ),
+            error: (error, stackTrace) => SizedBox(
+              height: 62.h,
+              child: Center(
+                child: Text(
+                  'Couldn\'t load this month\'s summary.',
+                  style: AppTextStyles.bodyRegular.copyWith(
+                    color: theme.colorScheme.error,
+                  ),
                 ),
               ),
-
-              _buildDivider(theme),
-
-              Expanded(
-                child: _buildStat(
-                  theme,
-                  value: '$completionRate%',
-                  label: 'Completion',
-                ),
-              ),
-            ],
+            ),
           ),
         ],
       ),
@@ -97,6 +129,10 @@ class MonthlyOverviewCard extends StatelessWidget {
   }
 
   Widget _buildDivider(ThemeData theme) {
-    return Container(width: 1.w, height: 48.h, color: theme.colorScheme.outlineVariant);
+    return Container(
+      width: 1.w,
+      height: 48.h,
+      color: theme.colorScheme.outlineVariant,
+    );
   }
 }

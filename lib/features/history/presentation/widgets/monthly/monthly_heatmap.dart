@@ -1,9 +1,19 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+
 import 'package:water_tracker_app/core/app_text_styles.dart';
+import 'package:water_tracker_app/features/history/domain/calculators/monthly_history_calculator.dart';
+import 'package:water_tracker_app/features/history/presentation/providers/monthly_history_provider.dart';
 import 'package:water_tracker_app/features/history/presentation/widgets/history_card.dart';
 
-class MonthlyHeatmap extends StatelessWidget {
+/// Calendar heatmap for the month containing [selectedDate], sourced
+/// from [monthlyHistoryProvider] (real `water_entries` data). Tapping a
+/// day reports it back via [onDateSelected] — [selectedDate] is the
+/// single source of truth for both which month is shown and which day
+/// is highlighted; callers should not keep a second, separate "selected
+/// day" state.
+class MonthlyHeatmap extends ConsumerWidget {
   final DateTime selectedDate;
   final ValueChanged<DateTime> onDateSelected;
 
@@ -13,59 +23,11 @@ class MonthlyHeatmap extends StatelessWidget {
     required this.onDateSelected,
   });
 
-  // Demo data for the UI phase.
-  static const Map<int, double> _dailyIntake = {
-    1: 1.8,
-    2: 2.1,
-    3: 2.4,
-    4: 1.2,
-    5: 0.8,
-    6: 2.0,
-    7: 2.3,
-    8: 1.6,
-    9: 2.2,
-    10: 2.1,
-    11: 1.4,
-    12: 1.9,
-    13: 2.5,
-    14: 1.1,
-    15: 2.0,
-    16: 2.3,
-    17: 1.7,
-    18: 2.1,
-    19: 2.6,
-    20: 1.3,
-    21: 2.0,
-    22: 2.2,
-    23: 1.8,
-    24: 0.9,
-    25: 2.4,
-    26: 2.0,
-    27: 1.5,
-    28: 2.3,
-    29: 1.9,
-    30: 2.1,
-  };
-
-  static const double _dailyGoal = 2.0;
-
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
-
-    final firstDay = DateTime(selectedDate.year, selectedDate.month, 1);
-
-    final daysInMonth = DateTime(
-      selectedDate.year,
-      selectedDate.month + 1,
-      0,
-    ).day;
-
-    // Monday = 1 ... Sunday = 7.
-    final leadingEmptyDays = firstDay.weekday - 1;
-
-    final totalCells = leadingEmptyDays + daysInMonth;
-    final rows = (totalCells / 7).ceil();
+    final monthStart = MonthlyHistoryCalculator.startOfMonth(selectedDate);
+    final resultAsync = ref.watch(monthlyHistoryProvider(monthStart));
 
     return HistoryCard(
       child: Column(
@@ -93,37 +55,27 @@ class MonthlyHeatmap extends StatelessWidget {
 
           SizedBox(height: 8.h),
 
-          GridView.builder(
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            itemCount: rows * 7,
-            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 7,
-              mainAxisSpacing: 6.h,
-              crossAxisSpacing: 6.w,
+          resultAsync.when(
+            data: (result) => _buildGrid(theme, result),
+            loading: () => Padding(
+              padding: EdgeInsets.symmetric(vertical: 24.h),
+              child: const Center(
+                child: SizedBox(
+                  width: 20,
+                  height: 20,
+                  child: CircularProgressIndicator(strokeWidth: 2),
+                ),
+              ),
             ),
-            itemBuilder: (context, index) {
-              final dayNumber = index - leadingEmptyDays + 1;
-
-              if (dayNumber < 1 || dayNumber > daysInMonth) {
-                return const SizedBox();
-              }
-
-              final date = DateTime(
-                selectedDate.year,
-                selectedDate.month,
-                dayNumber,
-              );
-
-              final intake = _dailyIntake[dayNumber];
-
-              return _buildDay(
-                theme,
-                date: date,
-                dayNumber: dayNumber,
-                intake: intake,
-              );
-            },
+            error: (error, stackTrace) => Padding(
+              padding: EdgeInsets.symmetric(vertical: 16.h),
+              child: Text(
+                'Couldn\'t load this month\'s calendar.',
+                style: AppTextStyles.bodyRegular.copyWith(
+                  color: theme.colorScheme.error,
+                ),
+              ),
+            ),
           ),
 
           SizedBox(height: 16.h),
@@ -131,6 +83,35 @@ class MonthlyHeatmap extends StatelessWidget {
           _buildLegend(theme),
         ],
       ),
+    );
+  }
+
+  Widget _buildGrid(ThemeData theme, MonthlyHistoryResult result) {
+    final leadingEmptyDays = result.firstWeekdayIndex;
+    final daysInMonth = result.days.length;
+    final totalCells = leadingEmptyDays + daysInMonth;
+    final rows = (totalCells / 7).ceil();
+
+    return GridView.builder(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      itemCount: rows * 7,
+      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: 7,
+        mainAxisSpacing: 6.h,
+        crossAxisSpacing: 6.w,
+      ),
+      itemBuilder: (context, index) {
+        final dayNumber = index - leadingEmptyDays + 1;
+
+        if (dayNumber < 1 || dayNumber > daysInMonth) {
+          return const SizedBox();
+        }
+
+        final day = result.days[dayNumber - 1];
+
+        return _buildDay(theme, day: day, goalMl: result.goalMl);
+      },
     );
   }
 
@@ -155,16 +136,16 @@ class MonthlyHeatmap extends StatelessWidget {
 
   Widget _buildDay(
     ThemeData theme, {
-    required DateTime date,
-    required int dayNumber,
-    required double? intake,
+    required MonthlyDayBreakdown day,
+    required int? goalMl,
   }) {
-    final isSelected = _isSameDay(date, selectedDate);
-    final isToday = _isSameDay(date, DateTime.now());
-    final dayColor = _getDayColor(theme, intake);
+    final isSelected = _isSameDay(day.date, selectedDate);
+    final isToday = _isSameDay(day.date, DateTime.now());
+    final hasEntries = day.entryCount > 0;
+    final dayColor = _getDayColor(theme, day: day, goalMl: goalMl);
 
     return GestureDetector(
-      onTap: () => onDateSelected(date),
+      onTap: () => onDateSelected(day.date),
       behavior: HitTestBehavior.opaque,
       child: Container(
         decoration: BoxDecoration(
@@ -176,9 +157,9 @@ class MonthlyHeatmap extends StatelessWidget {
         ),
         child: Center(
           child: Text(
-            '$dayNumber',
+            '${day.date.day}',
             style: AppTextStyles.captionXsMedium.copyWith(
-              color: _getTextColor(theme, dayColor, intake),
+              color: _getTextColor(theme, dayColor, hasEntries),
               fontWeight: isSelected || isToday
                   ? FontWeight.w700
                   : FontWeight.w500,
@@ -189,14 +170,25 @@ class MonthlyHeatmap extends StatelessWidget {
     );
   }
 
-  /// Intensity ramp derived from [ThemeData.colorScheme.primary] instead of
-  /// fixed hex codes, so the heatmap adapts automatically to dark mode.
-  Color _getDayColor(ThemeData theme, double? intake) {
-    if (intake == null) {
+  /// Intensity ramp derived from [ThemeData.colorScheme.primary] instead
+  /// of fixed hex codes, so the heatmap adapts automatically to dark
+  /// mode. No entries → "no data" tint; otherwise the shade ramps with
+  /// intake relative to the goal (capped so it's visibly "full" once the
+  /// goal is reached).
+  Color _getDayColor(
+    ThemeData theme, {
+    required MonthlyDayBreakdown day,
+    required int? goalMl,
+  }) {
+    if (day.entryCount == 0) {
       return theme.colorScheme.onSurface.withOpacity(0.04);
     }
 
-    final ratio = (intake / _dailyGoal).clamp(0.0, 1.25);
+    if (goalMl == null || goalMl <= 0) {
+      return theme.colorScheme.primary.withOpacity(0.5);
+    }
+
+    final ratio = (day.totalMl / goalMl).clamp(0.0, 1.25);
     final t = ratio / 1.25;
 
     return Color.lerp(
@@ -206,15 +198,15 @@ class MonthlyHeatmap extends StatelessWidget {
     )!;
   }
 
-  Color _getTextColor(ThemeData theme, Color dayColor, double? intake) {
-    if (intake == null) {
+  Color _getTextColor(ThemeData theme, Color dayColor, bool hasEntries) {
+    if (!hasEntries) {
       return theme.colorScheme.onSurface.withOpacity(0.4);
     }
 
     // Contrast against the computed cell color, not a fixed design token —
     // the background itself is dynamically blended above.
-    final isDarkCell = ThemeData.estimateBrightnessForColor(dayColor) ==
-        Brightness.dark;
+    final isDarkCell =
+        ThemeData.estimateBrightnessForColor(dayColor) == Brightness.dark;
 
     return isDarkCell ? Colors.white : theme.colorScheme.onSurface;
   }
