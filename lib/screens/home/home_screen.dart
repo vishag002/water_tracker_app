@@ -12,6 +12,7 @@ import 'package:water_tracker_app/l10n/app_localizations.dart';
 import 'package:water_tracker_app/providers/user_name_provider.dart';
 import 'package:water_tracker_app/providers/water_entry_provider.dart';
 import 'package:water_tracker_app/providers/water_goal_provider.dart';
+import 'package:water_tracker_app/screens/home/domain/calculators/daily_intake_calculator.dart';
 import 'package:water_tracker_app/screens/home/water_goal_edit_dialog.dart';
 import 'package:water_tracker_app/screens/onboarding/onboarding_name_dialog.dart';
 
@@ -23,13 +24,14 @@ class HomeScreen extends ConsumerStatefulWidget {
 }
 
 class _HomeScreenState extends ConsumerState<HomeScreen> {
-  // Adjust min/max/initial to your real daily-goal units (liters, ml, etc).
-  // waveAmount / easeFactor / waveSpeed are the knobs from the demo sliders
-  // -- tweak these directly as you dial in the feel.
+  // A sensible default before real data loads — matches the default 2L
+  // goal, so there's no visible jump once the real goal arrives. maxLevel
+  // and initialLevel get corrected in initState once the goal/entries load
+  // (initialLevel stays 0 here since it's only a pre-data placeholder).
   late final GlassyWaterController _waterController = GlassyWaterController(
     minLevel: 0,
-    maxLevel: 5.0,
-    initialLevel: 1.1,
+    maxLevel: 2.0,
+    initialLevel: 0,
     waveAmount: 4.0,
     // idle amplitude — raise for more movement
     easeFactor: 0.04,
@@ -43,8 +45,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   @override
   void initState() {
     super.initState();
-    // Runs once after the first frame so we have a real BuildContext.
-    // If no profile exists yet, this is a fresh install -> collect a name.
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       final userRepo = ref.read(userRepositoryProvider);
       final hasUser = await userRepo.hasUser();
@@ -56,10 +56,30 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       if (user == null || !mounted) return;
 
       final goalRepo = ref.read(waterGoalRepositoryProvider);
-      final existingGoal = await goalRepo.getWaterGoal(user.id);
+      var existingGoal = await goalRepo.getWaterGoal(user.id);
       if (existingGoal == null) {
         await goalRepo.createWaterGoal(userId: user.id, goal: 2, unit: 'L');
+        existingGoal = await goalRepo.getWaterGoal(user.id);
       }
+      if (!mounted) return;
+
+      // "Full" now means "goal reached" — set this before setLevel below so
+      // the very first fill fraction is computed against the right scale.
+      _waterController.updateMaxLevel((existingGoal?.goal ?? 2).toDouble());
+
+      // One-time restore: pull today's real total from Drift and sync the
+      // bottle to it. ref.listen in build() only reacts to changes *after*
+      // this point — it can't replay a value that already existed before
+      // this widget was watching, so this initial read has to happen here.
+      final now = DateTime.now();
+      final today = DateTime(now.year, now.month, now.day);
+      final entries = await ref.read(waterEntriesForDayProvider(today).future);
+      if (!mounted) return;
+
+      final totalMl = DailyIntakeCalculator.totalMl(
+        entries.map((e) => e.amount).toList(),
+      );
+      _waterController.setLevel(totalMl / 1000, pulse: false);
     });
   }
 
@@ -69,20 +89,16 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     super.dispose();
   }
 
-  // New method — handles both the persisted entry and the bottle animation
-  // together so they can never drift out of sync.
-  Future<void> _addWaterEntry({
-    required int amountMl,
-    required double literFraction,
-  }) async {
+  // _addWaterEntry no longer touches the controller directly — it only
+  // persists. The bottle updates itself reactively once the write lands
+  // and todaysWaterIntakeMlProvider emits the new total.
+  Future<void> _addWaterEntry({required int amountMl}) async {
     final userId = ref.read(currentUserProvider).value?.id;
-    if (userId == null)
-      return; // profile not loaded yet — nothing to attach the entry to
+    if (userId == null) return;
 
     await ref
         .read(waterEntryRepositoryProvider)
         .addEntry(userId: userId, amount: amountMl, unit: 'ml');
-    _waterController.addLevel(literFraction);
   }
 
   @override
@@ -92,6 +108,21 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     final goalAsync = ref.watch(currentWaterGoalProvider);
     final todaysIntakeMl = ref.watch(todaysWaterIntakeMlProvider);
     final todaysIntakeLiters = todaysIntakeMl / 1000;
+
+    // Reacts to every change from here on — new entries, deletions, etc.
+    // The initial value is already handled above in initState.
+    ref.listen<int>(todaysWaterIntakeMlProvider, (previous, next) {
+      _waterController.setLevel(next / 1000, pulse: previous != null);
+    });
+
+    // Keeps the bottle's "full" mark synced if the goal is edited later —
+    // e.g. via the tap-to-edit goal row below.
+    ref.listen(currentWaterGoalProvider, (previous, next) {
+      final goal = next.value;
+      if (goal != null) {
+        _waterController.updateMaxLevel(goal.goal.toDouble());
+      }
+    });
 
     return ScaffoldCustom(
       showAppBar: false,
@@ -339,20 +370,17 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 QuickAddButtonWidget(
-                  onTap: () =>
-                      _addWaterEntry(amountMl: 50, literFraction: 0.05),
+                  onTap: () => _addWaterEntry(amountMl: 50),
                   imageUrl: ImageConstants.glass50ML,
                   title: '+50 ml',
                 ),
                 QuickAddButtonWidget(
-                  onTap: () =>
-                      _addWaterEntry(amountMl: 250, literFraction: 0.25),
+                  onTap: () => _addWaterEntry(amountMl: 250),
                   imageUrl: ImageConstants.bottle250ML,
                   title: '+250 ml',
                 ),
                 QuickAddButtonWidget(
-                  onTap: () =>
-                      _addWaterEntry(amountMl: 500, literFraction: 0.5),
+                  onTap: () => _addWaterEntry(amountMl: 500),
                   imageUrl: ImageConstants.bottle500ML,
                   title: '+500 ml',
                 ),

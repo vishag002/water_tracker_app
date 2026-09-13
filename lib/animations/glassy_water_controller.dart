@@ -4,33 +4,42 @@ import 'package:flutter/material.dart';
 class GlassyWaterController extends ChangeNotifier {
   GlassyWaterController({
     required this.minLevel,
-    required this.maxLevel,
+    required double maxLevel,
     required double initialLevel,
-    this.waveAmount = 4.0, // idle amplitude in pixels — tune this
+    this.waveAmount = 4.0,
     this.easeFactor = 0.04,
-    this.waveSpeed = 0.012, // idle speed — tune this
-  }) : level = initialLevel.clamp(minLevel, maxLevel),
+    this.waveSpeed = 0.012,
+  }) : maxLevel = maxLevel,
+       _actualLevel = initialLevel,
+       level = initialLevel.clamp(minLevel, maxLevel),
        _displayY = 0,
        _baseY = 0;
 
   final double minLevel;
-  final double maxLevel;
+  double maxLevel;
 
-  double waveAmount; // idle surface amplitude (pixels)
+  double waveAmount;
   double easeFactor;
   double waveSpeed;
 
+  // The real, unclamped current intake (e.g. 4.65 L) — the source of
+  // truth, independent of whatever the goal happens to be right now.
+  double _actualLevel;
+
+  // Clamped 0..maxLevel value actually used for rendering. This is only
+  // ever a *view* of _actualLevel — never write to it directly, or a
+  // goal change can permanently lose the real intake again.
   double level;
+
   double _displayY;
   double _baseY;
   double _t = 0;
-  double _energy = 0; // 0..1, small calm bump on add/remove, decays fast
+  double _energy = 0;
 
   double _topY = 0;
   double _bottomY = 0;
   bool _attached = false;
 
-  // Exposed to the painter
   double get energy => _energy;
 
   void attach({required double topY, required double bottomY}) {
@@ -49,17 +58,29 @@ class GlassyWaterController extends ChangeNotifier {
   }
 
   void setLevel(double newLevel, {bool pulse = true}) {
+    _actualLevel = newLevel;
     level = newLevel.clamp(minLevel, maxLevel);
     _baseY = _levelToY(level);
-    if (pulse) _energy = (_energy + 0.30).clamp(0.0, 1.0); // calm nudge
+    if (pulse) _energy = (_energy + 0.30).clamp(0.0, 1.0);
+    notifyListeners();
+  }
+
+  /// Call whenever the daily goal changes. Re-derives the render level
+  /// from _actualLevel — the real intake — so nothing is lost even if
+  /// the goal shrank and grew again in between.
+  void updateMaxLevel(double newMaxLevel) {
+    if (newMaxLevel <= minLevel || newMaxLevel == maxLevel) return;
+    maxLevel = newMaxLevel;
+    level = _actualLevel.clamp(minLevel, maxLevel);
+    _baseY = _levelToY(level);
     notifyListeners();
   }
 
   void addLevel(double delta, {bool pulse = true}) =>
-      setLevel(level + delta, pulse: pulse);
+      setLevel(_actualLevel + delta, pulse: pulse);
 
   void minusLevel(double delta, {bool pulse = true}) =>
-      setLevel(level - delta, pulse: pulse);
+      setLevel(_actualLevel - delta, pulse: pulse);
 
   /// Gel morph surface — 3 layered sines at different frequencies/speeds.
   /// Idle: slow and barely moving. On add/remove: energy nudges amplitude
