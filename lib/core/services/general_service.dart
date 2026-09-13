@@ -18,4 +18,8 @@ class GeneralService {
         date.month == now.month &&
         date.day == now.day;
   }
+
+  static DateTime dateOnly(DateTime date) {
+    return DateTime(date.year, date.month, date.day);
+  }
 }

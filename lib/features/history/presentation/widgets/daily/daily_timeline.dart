@@ -1,23 +1,25 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:intl/intl.dart';
 import 'package:water_tracker_app/core/app_text_styles.dart';
+import 'package:water_tracker_app/core/services/general_service.dart';
+import 'package:water_tracker_app/database/app_database.dart';
 import 'package:water_tracker_app/features/history/presentation/widgets/history_card.dart';
+import 'package:water_tracker_app/providers/water_entry_provider.dart';
 
-class DailyTimeline extends StatelessWidget {
-  const DailyTimeline({super.key});
+class DailyTimeline extends ConsumerWidget {
+  const DailyTimeline({super.key, required this.date});
 
-  // Demo data for the UI phase.
-  static const List<_WaterEntry> _entries = [
-    _WaterEntry(time: '8:00 AM', amount: 300),
-    _WaterEntry(time: '10:30 AM', amount: 250),
-    _WaterEntry(time: '1:00 PM', amount: 400),
-    _WaterEntry(time: '4:30 PM', amount: 350),
-    _WaterEntry(time: '7:00 PM', amount: 500),
-  ];
+  final DateTime date;
+
+  static final DateFormat _timeFormat = DateFormat('h:mm a');
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
+    final dayKey = GeneralService.dateOnly(date);
+    final entriesAsync = ref.watch(waterEntriesForDayProvider(dayKey));
 
     return HistoryCard(
       child: Column(
@@ -32,13 +34,46 @@ class DailyTimeline extends StatelessWidget {
 
           SizedBox(height: 20.h),
 
-          ...List.generate(
-            _entries.length,
-            (index) => _buildTimelineItem(
-              context,
-              theme: theme,
-              entry: _entries[index],
-              isLast: index == _entries.length - 1,
+          entriesAsync.when(
+            data: (entries) {
+              if (entries.isEmpty) {
+                return _buildEmptyState(theme, isToday: GeneralService.isToday(date));
+              }
+
+              // The DAO returns newest first; the timeline reads top-to-
+              // bottom as the day happened, so flip to chronological order.
+              final chronological = entries.reversed.toList();
+
+              return Column(
+                children: List.generate(
+                  chronological.length,
+                  (index) => _buildTimelineItem(
+                    context,
+                    theme: theme,
+                    entry: chronological[index],
+                    isLast: index == chronological.length - 1,
+                  ),
+                ),
+              );
+            },
+            loading: () => SizedBox(
+              height: 62.h,
+              child: const Center(
+                child: SizedBox(
+                  width: 20,
+                  height: 20,
+                  child: CircularProgressIndicator(strokeWidth: 2),
+                ),
+              ),
+            ),
+            error: (error, stackTrace) => Padding(
+              padding: EdgeInsets.symmetric(vertical: 12.h),
+              child: Text(
+                'Couldn\'t load entries for this day.',
+                style: AppTextStyles.bodyMedium.copyWith(
+                  color: theme.colorScheme.error,
+                ),
+              ),
             ),
           ),
         ],
@@ -46,10 +81,24 @@ class DailyTimeline extends StatelessWidget {
     );
   }
 
+  Widget _buildEmptyState(ThemeData theme, {required bool isToday}) {
+    return Padding(
+      padding: EdgeInsets.symmetric(vertical: 12.h),
+      child: Text(
+        isToday
+            ? 'No entries yet today. Add some water to see it here.'
+            : 'No entries for this day.',
+        style: AppTextStyles.bodyMedium.copyWith(
+          color: theme.colorScheme.onSurface.withOpacity(0.6),
+        ),
+      ),
+    );
+  }
+
   Widget _buildTimelineItem(
     BuildContext context, {
     required ThemeData theme,
-    required _WaterEntry entry,
+    required WaterEntry entry,
     required bool isLast,
   }) {
     return SizedBox(
@@ -91,14 +140,14 @@ class DailyTimeline extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        entry.time,
+                        _timeFormat.format(entry.addedAt),
                         style: AppTextStyles.bodySemiBold.copyWith(
                           color: theme.colorScheme.onSurface,
                         ),
                       ),
                       SizedBox(height: 3.h),
                       Text(
-                        '${entry.amount} ml',
+                        '${entry.amount} ${entry.unit}',
                         style: AppTextStyles.bodyMedium.copyWith(
                           color: theme.colorScheme.onSurface.withOpacity(0.6),
                         ),
@@ -119,11 +168,11 @@ class DailyTimeline extends StatelessWidget {
   Widget _buildEditButton(
     BuildContext context,
     ThemeData theme,
-    _WaterEntry entry,
+    WaterEntry entry,
   ) {
     return GestureDetector(
       onTap: () {
-        // TODO: Open edit water entry dialog.
+        // TODO: Open edit water entry dialog (post-MVP for this pass).
       },
       behavior: HitTestBehavior.opaque,
       child: Container(
@@ -142,11 +191,4 @@ class DailyTimeline extends StatelessWidget {
       ),
     );
   }
-}
-
-class _WaterEntry {
-  final String time;
-  final int amount;
-
-  const _WaterEntry({required this.time, required this.amount});
 }

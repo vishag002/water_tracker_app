@@ -73,11 +73,11 @@ class _HistoryScreenState extends State<HistoryScreen> {
       case HistoryView.daily:
         return Column(
           children: [
-            const DailyProgressCard(),
+            DailyProgressCard(date: _selectedDate),
             SizedBox(height: 12.h),
-            const DailySummaryCard(),
+            DailySummaryCard(date: _selectedDate),
             SizedBox(height: 12.h),
-            const DailyTimeline(),
+            DailyTimeline(date: _selectedDate),
           ],
         );
 

@@ -150,36 +150,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                     ),
                   ],
                 ),
-                IconButton(
-                  onPressed: () async {
-                    final user = ref.read(currentUserProvider).value;
-
-                    if (user == null) {
-                      debugPrint('DEBUG: No current user found');
-                      return;
-                    }
-
-                    final entries = await ref
-                        .read(waterEntryRepositoryProvider)
-                        .getEntries(user.id);
-
-                    debugPrint('========== WATER ENTRIES ==========');
-                    debugPrint('User ID: ${user.id}');
-                    debugPrint('Total entries: ${entries.length}');
-
-                    for (final entry in entries) {
-                      debugPrint(
-                        'ID: ${entry.id} | '
-                        'User ID: ${entry.userId} | '
-                        'Amount: ${entry.amount} ${entry.unit} | '
-                        'Added At: ${entry.addedAt}',
-                      );
-                    }
-
-                    debugPrint('===================================');
-                  },
-                  icon: const Icon(Icons.add),
-                ),
               ],
             ),
             // Bottle area: instead of a fixed 200x380 box, this now
