@@ -1,72 +1,36 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:table_calendar/table_calendar.dart';
 import 'package:water_tracker_app/core/app_text_styles.dart';
+import 'package:water_tracker_app/features/streak/domain/calculators/streak_calculator.dart';
+import 'package:water_tracker_app/features/streak/presentation/providers/streak_provider.dart';
 
-class StreakCalendarCard extends StatefulWidget {
+/// Monthly calendar of hydration outcomes, sourced from [streakProvider]
+/// (real `water_entries` data) for whichever month [_focusedMonth] is
+/// currently showing. Month navigation only changes which month's day
+/// statuses are displayed here — it does not affect the current/longest
+/// streak shown in CurrentStreakCard/StreakStatsCard, which are always
+/// based on the full history relative to today.
+///
+/// Built as a plain `GridView`, the same approach the Month History
+/// heatmap uses, rather than a third-party calendar package — keeps
+/// this feature on the same architecture as the rest of the app instead
+/// of introducing a new dependency for one screen.
+class StreakCalendarCard extends ConsumerStatefulWidget {
   const StreakCalendarCard({super.key});
 
   @override
-  State<StreakCalendarCard> createState() => _StreakCalendarCardState();
+  ConsumerState<StreakCalendarCard> createState() =>
+      _StreakCalendarCardState();
 }
 
-class _StreakCalendarCardState extends State<StreakCalendarCard> {
-  DateTime _focusedDay = DateTime(2026, 9, 10);
-  DateTime? _selectedDay;
-
-  // Temporary UI data.
-  // This will later come from Drift.
-  final Set<DateTime> _completedDays = {
-    // August
-    DateTime(2026, 8, 17),
-    DateTime(2026, 8, 18),
-    DateTime(2026, 8, 19),
-    DateTime(2026, 8, 21),
-    DateTime(2026, 8, 22),
-    DateTime(2026, 8, 23),
-    DateTime(2026, 8, 25),
-    DateTime(2026, 8, 26),
-    DateTime(2026, 8, 27),
-    DateTime(2026, 8, 29),
-    DateTime(2026, 8, 30),
-    DateTime(2026, 8, 31),
-
-    // September
-    DateTime(2026, 9, 1),
-    DateTime(2026, 9, 2),
-    DateTime(2026, 9, 3),
-    DateTime(2026, 9, 4),
-    DateTime(2026, 9, 6),
-    DateTime(2026, 9, 7),
-    DateTime(2026, 9, 8),
-    DateTime(2026, 9, 9),
-  };
-
-  final Set<DateTime> _missedDays = {
-    // August
-    DateTime(2026, 8, 20),
-    DateTime(2026, 8, 24),
-    DateTime(2026, 8, 28),
-
-    // September
-    DateTime(2026, 9, 5),
-  };
-
-  bool _isSameDate(DateTime a, DateTime b) {
-    return a.year == b.year && a.month == b.month && a.day == b.day;
-  }
-
-  bool _isCompleted(DateTime day) {
-    return _completedDays.any((date) => _isSameDate(date, day));
-  }
-
-  bool _isMissed(DateTime day) {
-    return _missedDays.any((date) => _isSameDate(date, day));
-  }
+class _StreakCalendarCardState extends ConsumerState<StreakCalendarCard> {
+  DateTime _focusedMonth = DateTime.now();
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final resultAsync = ref.watch(streakProvider(_focusedMonth));
 
     return Container(
       width: double.infinity,
@@ -85,9 +49,32 @@ class _StreakCalendarCardState extends State<StreakCalendarCard> {
       child: Column(
         children: [
           _buildMonthHeader(theme),
-          SizedBox(height: 4.h),
-          _buildCalendar(theme),
-          SizedBox(height: 6.h),
+          SizedBox(height: 12.h),
+          _buildWeekdayHeader(theme),
+          SizedBox(height: 8.h),
+          resultAsync.when(
+            data: (result) => _buildCalendarGrid(theme, result),
+            loading: () => SizedBox(
+              height: 260.h,
+              child: const Center(
+                child: SizedBox(
+                  width: 20,
+                  height: 20,
+                  child: CircularProgressIndicator(strokeWidth: 2),
+                ),
+              ),
+            ),
+            error: (error, stackTrace) => Padding(
+              padding: EdgeInsets.symmetric(vertical: 16.h),
+              child: Text(
+                'Couldn\'t load this month\'s calendar.',
+                style: AppTextStyles.bodyRegular.copyWith(
+                  color: theme.colorScheme.error,
+                ),
+              ),
+            ),
+          ),
+          SizedBox(height: 10.h),
           _buildLegend(theme),
         ],
       ),
@@ -98,7 +85,7 @@ class _StreakCalendarCardState extends State<StreakCalendarCard> {
     return Row(
       children: [
         Text(
-          '${_monthName(_focusedDay.month)} ${_focusedDay.year}',
+          '${_monthName(_focusedMonth.month)} ${_focusedMonth.year}',
           style: AppTextStyles.captionSemiBold.copyWith(
             color: theme.colorScheme.onSurface,
           ),
@@ -109,9 +96,9 @@ class _StreakCalendarCardState extends State<StreakCalendarCard> {
           icon: Icons.chevron_left,
           onTap: () {
             setState(() {
-              _focusedDay = DateTime(
-                _focusedDay.year,
-                _focusedDay.month - 1,
+              _focusedMonth = DateTime(
+                _focusedMonth.year,
+                _focusedMonth.month - 1,
                 1,
               );
             });
@@ -120,24 +107,36 @@ class _StreakCalendarCardState extends State<StreakCalendarCard> {
         _buildNavigationButton(
           theme: theme,
           icon: Icons.chevron_right,
-          onTap: () {
-            setState(() {
-              _focusedDay = DateTime(
-                _focusedDay.year,
-                _focusedDay.month + 1,
-                1,
-              );
-            });
-          },
+          // Mirrors HistoryDateSelector's monthly "can't go forward past
+          // the current month" rule — the streak calendar shouldn't
+          // navigate into the future either.
+          onTap: _canGoForward()
+              ? () {
+                  setState(() {
+                    _focusedMonth = DateTime(
+                      _focusedMonth.year,
+                      _focusedMonth.month + 1,
+                      1,
+                    );
+                  });
+                }
+              : null,
         ),
       ],
     );
   }
 
+  bool _canGoForward() {
+    final today = DateTime.now();
+    return _focusedMonth.year < today.year ||
+        (_focusedMonth.year == today.year &&
+            _focusedMonth.month < today.month);
+  }
+
   Widget _buildNavigationButton({
     required ThemeData theme,
     required IconData icon,
-    required VoidCallback onTap,
+    required VoidCallback? onTap,
   }) {
     return InkWell(
       onTap: onTap,
@@ -145,130 +144,86 @@ class _StreakCalendarCardState extends State<StreakCalendarCard> {
       child: SizedBox(
         width: 28.w,
         height: 28.h,
-        child: Icon(icon, size: 19.sp, color: theme.colorScheme.onSurface),
+        child: Icon(
+          icon,
+          size: 19.sp,
+          color: onTap == null
+              ? theme.colorScheme.onSurface.withOpacity(0.25)
+              : theme.colorScheme.onSurface,
+        ),
       ),
     );
   }
 
-  Widget _buildCalendar(ThemeData theme) {
-    return TableCalendar<void>(
-      firstDay: DateTime(2024),
-      lastDay: DateTime(2030),
-      focusedDay: _focusedDay,
-      currentDay: DateTime(2026, 9, 10),
+  Widget _buildWeekdayHeader(ThemeData theme) {
+    const weekdays = ['M', 'T', 'W', 'T', 'F', 'S', 'S'];
 
-      headerVisible: false,
-      calendarFormat: CalendarFormat.month,
-      startingDayOfWeek: StartingDayOfWeek.monday,
-
-      availableGestures: AvailableGestures.none,
-
-      rowHeight: 38.h,
-      daysOfWeekHeight: 22.h,
-
-      sixWeekMonthsEnforced: false,
-
-      selectedDayPredicate: (day) {
-        return _selectedDay != null && _isSameDate(day, _selectedDay!);
-      },
-
-      daysOfWeekStyle: DaysOfWeekStyle(
-        weekdayStyle: AppTextStyles.captionXsRegular.copyWith(
-          color: theme.colorScheme.onSurface.withOpacity(0.55),
-        ),
-        weekendStyle: AppTextStyles.captionXsRegular.copyWith(
-          color: theme.colorScheme.onSurface.withOpacity(0.55),
-        ),
-      ),
-
-      calendarStyle: const CalendarStyle(
-        outsideDaysVisible: true,
-        cellMargin: EdgeInsets.zero,
-        cellPadding: EdgeInsets.zero,
-
-        defaultDecoration: BoxDecoration(),
-        weekendDecoration: BoxDecoration(),
-        outsideDecoration: BoxDecoration(),
-        todayDecoration: BoxDecoration(),
-        selectedDecoration: BoxDecoration(),
-
-        // Rendered via calendarBuilders instead — kept transparent so the
-        // package's own text painter never shows through.
-        defaultTextStyle: TextStyle(color: Colors.transparent),
-        weekendTextStyle: TextStyle(color: Colors.transparent),
-        outsideTextStyle: TextStyle(color: Colors.transparent),
-        todayTextStyle: TextStyle(color: Colors.transparent),
-        selectedTextStyle: TextStyle(color: Colors.transparent),
-      ),
-
-      calendarBuilders: CalendarBuilders<void>(
-        defaultBuilder: (context, day, focusedDay) {
-          return _buildDayCell(theme, day);
-        },
-        todayBuilder: (context, day, focusedDay) {
-          return _buildDayCell(theme, day, isToday: true);
-        },
-        selectedBuilder: (context, day, focusedDay) {
-          return _buildDayCell(theme, day, isSelected: true);
-        },
-        outsideBuilder: (context, day, focusedDay) {
-          return _buildDayCell(theme, day, isOutside: true);
-        },
-      ),
-
-      onDaySelected: (selectedDay, focusedDay) {
-        setState(() {
-          _selectedDay = selectedDay;
-          _focusedDay = focusedDay;
-        });
-      },
-
-      onPageChanged: (focusedDay) {
-        setState(() {
-          _focusedDay = focusedDay;
-        });
-      },
-    );
-  }
-
-  Widget _buildDayCell(
-    ThemeData theme,
-    DateTime day, {
-    bool isToday = false,
-    bool isOutside = false,
-    bool isSelected = false,
-  }) {
-    if (isOutside) {
-      return Center(
-        child: Text(
-          '${day.day}',
-          style: AppTextStyles.captionXsRegular.copyWith(
-            color: theme.colorScheme.onSurface.withOpacity(0.3),
+    return Row(
+      children: weekdays.map((day) {
+        return Expanded(
+          child: Center(
+            child: Text(
+              day,
+              style: AppTextStyles.captionXsRegular.copyWith(
+                color: theme.colorScheme.onSurface.withOpacity(0.55),
+              ),
+            ),
           ),
-        ),
-      );
-    }
-
-    if (isToday) {
-      return _TodayDayCell(day: day);
-    }
-
-    if (_isCompleted(day)) {
-      return _CompletedDayCell(day: day);
-    }
-
-    if (_isMissed(day)) {
-      return _MissedDayCell(day: day);
-    }
-
-    return Center(
-      child: Text(
-        '${day.day}',
-        style: AppTextStyles.captionXsRegular.copyWith(
-          color: theme.colorScheme.onSurface.withOpacity(0.6),
-        ),
-      ),
+        );
+      }).toList(),
     );
+  }
+
+  Widget _buildCalendarGrid(ThemeData theme, StreakResult result) {
+    // Monday = 0 ... Sunday = 6, so the grid lines up under the M T W T
+    // F S S header above — same convention as MonthlyHeatmap.
+    final firstWeekdayIndex =
+        result.calendarMonthStart.weekday - DateTime.monday;
+    final daysInMonth = result.dailyStatuses.length;
+    final totalCells = firstWeekdayIndex + daysInMonth;
+    final rows = (totalCells / 7).ceil();
+
+    return GridView.builder(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      itemCount: rows * 7,
+      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: 7,
+        mainAxisSpacing: 4.h,
+        crossAxisSpacing: 4.w,
+      ),
+      itemBuilder: (context, index) {
+        final dayNumber = index - firstWeekdayIndex + 1;
+
+        if (dayNumber < 1 || dayNumber > daysInMonth) {
+          return const SizedBox();
+        }
+
+        return _buildDayCell(theme, result.dailyStatuses[dayNumber - 1]);
+      },
+    );
+  }
+
+  Widget _buildDayCell(ThemeData theme, StreakDayStatus day) {
+    if (day.isToday) {
+      return _TodayDayCell(day: day.date);
+    }
+
+    switch (day.status) {
+      case DayStreakStatus.success:
+        return _CompletedDayCell(day: day.date);
+      case DayStreakStatus.missed:
+        return _MissedDayCell(day: day.date);
+      case DayStreakStatus.noData:
+        return Center(
+          child: Text(
+            '${day.date.day}',
+            style: AppTextStyles.captionXsRegular.copyWith(
+              color: theme.colorScheme.onSurface.withOpacity(0.6),
+            ),
+          ),
+        );
+    }
   }
 
   Widget _buildLegend(ThemeData theme) {
@@ -393,7 +348,11 @@ class _TodayDayCell extends StatelessWidget {
           borderRadius: BorderRadius.circular(7.r),
         ),
         alignment: Alignment.center,
-        child: Icon(Icons.water_drop, size: 16.sp, color: theme.colorScheme.surface),
+        child: Icon(
+          Icons.water_drop,
+          size: 16.sp,
+          color: theme.colorScheme.surface,
+        ),
       ),
     );
   }

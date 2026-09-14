@@ -1,13 +1,21 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:water_tracker_app/core/app_text_styles.dart';
+import 'package:water_tracker_app/features/streak/domain/calculators/streak_calculator.dart';
+import 'package:water_tracker_app/features/streak/presentation/providers/streak_provider.dart';
 
-class CurrentStreakCard extends StatelessWidget {
+/// Current/longest streak plus this month's Goal Days and Completion
+/// Rate, sourced from [streakProvider] (real `water_entries` data).
+/// Always reflects the *actual* current month/day — independent of
+/// whichever month StreakCalendarCard has navigated to below it.
+class CurrentStreakCard extends ConsumerWidget {
   const CurrentStreakCard({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
+    final resultAsync = ref.watch(streakProvider(DateTime.now()));
 
     return Container(
       width: double.infinity,
@@ -23,132 +31,159 @@ class CurrentStreakCard extends StatelessWidget {
           ),
         ],
       ),
-      child: Column(
-        children: [
-          // Streak icon
-          Container(
-            width: 40.w,
-            height: 40.w,
-            decoration: BoxDecoration(
-              color: theme.colorScheme.primary.withOpacity(0.08),
-              shape: BoxShape.circle,
-            ),
-            child: Icon(
-              Icons.water_drop,
-              size: 21.sp,
-              color: theme.colorScheme.primary,
+      child: resultAsync.when(
+        data: (result) => _buildContent(theme, result),
+        loading: () => SizedBox(
+          height: 190.h,
+          child: const Center(
+            child: SizedBox(
+              width: 20,
+              height: 20,
+              child: CircularProgressIndicator(strokeWidth: 2),
             ),
           ),
-
-          SizedBox(height: 7.h),
-
-          // Current streak label
-          Text(
-            'Current Streak',
-            style: AppTextStyles.captionXsMedium.copyWith(
-              color: theme.colorScheme.onSurface.withOpacity(0.65),
+        ),
+        error: (error, stackTrace) => SizedBox(
+          height: 190.h,
+          child: Center(
+            child: Text(
+              'Couldn\'t load streak data.',
+              style: AppTextStyles.bodyRegular.copyWith(
+                color: theme.colorScheme.error,
+              ),
             ),
           ),
-
-          SizedBox(height: 1.h),
-
-          // Streak value
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.baseline,
-            textBaseline: TextBaseline.alphabetic,
-            children: [
-              Text(
-                '12',
-                style: AppTextStyles.headingSemiBold.copyWith(
-                  fontSize: 38.sp,
-                  color: theme.colorScheme.primary,
-                ),
-              ),
-              SizedBox(width: 7.w),
-              Text(
-                'Days',
-                style: AppTextStyles.bodySmallSemiBold.copyWith(
-                  color: theme.colorScheme.primary,
-                ),
-              ),
-            ],
-          ),
-
-          SizedBox(height: 4.h),
-
-          // Longest streak pill
-          Container(
-            padding: EdgeInsets.symmetric(horizontal: 9.w, vertical: 4.h),
-            decoration: BoxDecoration(
-              color: theme.colorScheme.primary.withOpacity(0.08),
-              borderRadius: BorderRadius.circular(6.r),
-            ),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(
-                  Icons.emoji_events_outlined,
-                  size: 12.sp,
-                  color: theme.colorScheme.primary,
-                ),
-                SizedBox(width: 5.w),
-                Text(
-                  'Longest Streak:',
-                  style: AppTextStyles.captionXsRegular.copyWith(
-                    color: theme.colorScheme.onSurface.withOpacity(0.6),
-                  ),
-                ),
-                SizedBox(width: 3.w),
-                Text(
-                  '24 Days',
-                  style: AppTextStyles.captionXsSemiBold.copyWith(
-                    color: theme.colorScheme.primary,
-                  ),
-                ),
-              ],
-            ),
-          ),
-
-          SizedBox(height: 14.h),
-
-          // Divider
-          Divider(
-            height: 1.h,
-            thickness: 1,
-            color: theme.colorScheme.primary.withOpacity(0.08),
-          ),
-
-          SizedBox(height: 12.h),
-
-          // Bottom statistics
-          Row(
-            children: [
-              Expanded(
-                child: _StatItem(
-                  icon: Icons.water_drop_outlined,
-                  value: '96',
-                  label: 'Goal Days',
-                ),
-              ),
-
-              Container(
-                width: 1,
-                height: 32.h,
-                color: theme.colorScheme.primary.withOpacity(0.08),
-              ),
-
-              Expanded(
-                child: _StatItem(
-                  icon: Icons.water_outlined,
-                  value: '80%',
-                  label: 'Completion Rate',
-                ),
-              ),
-            ],
-          ),
-        ],
+        ),
       ),
+    );
+  }
+
+  Widget _buildContent(ThemeData theme, StreakResult result) {
+    return Column(
+      children: [
+        // Streak icon
+        Container(
+          width: 40.w,
+          height: 40.w,
+          decoration: BoxDecoration(
+            color: theme.colorScheme.primary.withOpacity(0.08),
+            shape: BoxShape.circle,
+          ),
+          child: Icon(
+            Icons.water_drop,
+            size: 21.sp,
+            color: theme.colorScheme.primary,
+          ),
+        ),
+
+        SizedBox(height: 7.h),
+
+        // Current streak label
+        Text(
+          'Current Streak',
+          style: AppTextStyles.captionXsMedium.copyWith(
+            color: theme.colorScheme.onSurface.withOpacity(0.65),
+          ),
+        ),
+
+        SizedBox(height: 1.h),
+
+        // Streak value
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.baseline,
+          textBaseline: TextBaseline.alphabetic,
+          children: [
+            Text(
+              '${result.currentStreak}',
+              style: AppTextStyles.headingSemiBold.copyWith(
+                fontSize: 38.sp,
+                color: theme.colorScheme.primary,
+              ),
+            ),
+            SizedBox(width: 7.w),
+            Text(
+              'Days',
+              style: AppTextStyles.bodySmallSemiBold.copyWith(
+                color: theme.colorScheme.primary,
+              ),
+            ),
+          ],
+        ),
+
+        SizedBox(height: 4.h),
+
+        // Longest streak pill
+        Container(
+          padding: EdgeInsets.symmetric(horizontal: 9.w, vertical: 4.h),
+          decoration: BoxDecoration(
+            color: theme.colorScheme.primary.withOpacity(0.08),
+            borderRadius: BorderRadius.circular(6.r),
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(
+                Icons.emoji_events_outlined,
+                size: 12.sp,
+                color: theme.colorScheme.primary,
+              ),
+              SizedBox(width: 5.w),
+              Text(
+                'Longest Streak:',
+                style: AppTextStyles.captionXsRegular.copyWith(
+                  color: theme.colorScheme.onSurface.withOpacity(0.6),
+                ),
+              ),
+              SizedBox(width: 3.w),
+              Text(
+                '${result.longestStreak} Days',
+                style: AppTextStyles.captionXsSemiBold.copyWith(
+                  color: theme.colorScheme.primary,
+                ),
+              ),
+            ],
+          ),
+        ),
+
+        // SizedBox(height: 14.h),
+
+        // // Divider
+        // Divider(
+        //   height: 1.h,
+        //   thickness: 1,
+        //   color: theme.colorScheme.primary.withOpacity(0.08),
+        // ),
+
+        // SizedBox(height: 12.h),
+
+        // Bottom statistics
+        // Row(
+        //   children: [
+        //     Expanded(
+        //       child: _StatItem(
+        //         icon: Icons.water_drop_outlined,
+        //         value: '${result.goalDays}',
+        //         label: 'Goal Days',
+        //       ),
+        //     ),
+
+        //     Container(
+        //       width: 1,
+        //       height: 32.h,
+        //       color: theme.colorScheme.primary.withOpacity(0.08),
+        //     ),
+
+        //     Expanded(
+        //       child: _StatItem(
+        //         icon: Icons.water_outlined,
+        //         value: '${result.completionPercent.round()}%',
+        //         label: 'Completion Rate',
+        //       ),
+        //     ),
+        //   ],
+        // ),
+      ],
     );
   }
 }

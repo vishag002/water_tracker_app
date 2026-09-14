@@ -1,13 +1,21 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:water_tracker_app/core/app_text_styles.dart';
+import 'package:water_tracker_app/features/streak/domain/calculators/streak_calculator.dart';
+import 'package:water_tracker_app/features/streak/presentation/providers/streak_provider.dart';
 
-class StreakStatsCard extends StatelessWidget {
+/// Current streak, longest streak, and this month's completion rate,
+/// sourced from [streakProvider] (real `water_entries` data). Always
+/// reflects the *actual* current month — independent of whichever month
+/// StreakCalendarCard has navigated to.
+class StreakStatsCard extends ConsumerWidget {
   const StreakStatsCard({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
+    final resultAsync = ref.watch(streakProvider(DateTime.now()));
 
     return Container(
       width: double.infinity,
@@ -33,42 +41,69 @@ class StreakStatsCard extends StatelessWidget {
             ),
           ),
           SizedBox(height: 18.h),
-          Row(
-            children: [
-              Expanded(
-                child: _StatItem(
-                  icon: Icons.local_fire_department_outlined,
-                  value: '12',
-                  title: 'Current Streak',
-                  subtitle: 'days',
+          resultAsync.when(
+            data: (result) => _buildStatsRow(theme, result),
+            loading: () => SizedBox(
+              height: 108.h,
+              child: const Center(
+                child: SizedBox(
+                  width: 20,
+                  height: 20,
+                  child: CircularProgressIndicator(strokeWidth: 2),
                 ),
               ),
-
-              const _VerticalDivider(),
-
-              Expanded(
-                child: _StatItem(
-                  icon: Icons.emoji_events_outlined,
-                  value: '24',
-                  title: 'Longest Streak',
-                  subtitle: 'days',
+            ),
+            error: (error, stackTrace) => SizedBox(
+              height: 108.h,
+              child: Center(
+                child: Text(
+                  'Couldn\'t load streak stats.',
+                  style: AppTextStyles.bodyRegular.copyWith(
+                    color: theme.colorScheme.error,
+                  ),
                 ),
               ),
-
-              const _VerticalDivider(),
-
-              Expanded(
-                child: _StatItem(
-                  icon: Icons.pie_chart_outline,
-                  value: '80%',
-                  title: 'Completion Rate',
-                  subtitle: 'this month',
-                ),
-              ),
-            ],
+            ),
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildStatsRow(ThemeData theme, StreakResult result) {
+    return Row(
+      children: [
+        Expanded(
+          child: _StatItem(
+            icon: Icons.local_fire_department_outlined,
+            value: '${result.currentStreak}',
+            title: 'Current Streak',
+            subtitle: 'days',
+          ),
+        ),
+
+        const _VerticalDivider(),
+
+        Expanded(
+          child: _StatItem(
+            icon: Icons.emoji_events_outlined,
+            value: '${result.longestStreak}',
+            title: 'Longest Streak',
+            subtitle: 'days',
+          ),
+        ),
+
+        const _VerticalDivider(),
+
+        Expanded(
+          child: _StatItem(
+            icon: Icons.pie_chart_outline,
+            value: '${result.completionPercent.round()}%',
+            title: 'Completion Rate',
+            subtitle: 'this month',
+          ),
+        ),
+      ],
     );
   }
 }
