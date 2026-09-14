@@ -1162,17 +1162,551 @@ class WaterEntriesCompanion extends UpdateCompanion<WaterEntry> {
   }
 }
 
+class $RemindersTable extends Reminders
+    with TableInfo<$RemindersTable, Reminder> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $RemindersTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+    'id',
+    aliasedName,
+    false,
+    hasAutoIncrement: true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'PRIMARY KEY AUTOINCREMENT',
+    ),
+  );
+  static const VerificationMeta _userIdMeta = const VerificationMeta('userId');
+  @override
+  late final GeneratedColumn<int> userId = GeneratedColumn<int>(
+    'user_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'REFERENCES users (id)',
+    ),
+  );
+  static const VerificationMeta _intervalMinutesMeta = const VerificationMeta(
+    'intervalMinutes',
+  );
+  @override
+  late final GeneratedColumn<int> intervalMinutes = GeneratedColumn<int>(
+    'interval_minutes',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _startTimeMinutesMeta = const VerificationMeta(
+    'startTimeMinutes',
+  );
+  @override
+  late final GeneratedColumn<int> startTimeMinutes = GeneratedColumn<int>(
+    'start_time_minutes',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _endTimeMinutesMeta = const VerificationMeta(
+    'endTimeMinutes',
+  );
+  @override
+  late final GeneratedColumn<int> endTimeMinutes = GeneratedColumn<int>(
+    'end_time_minutes',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _isEnabledMeta = const VerificationMeta(
+    'isEnabled',
+  );
+  @override
+  late final GeneratedColumn<bool> isEnabled = GeneratedColumn<bool>(
+    'is_enabled',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: true,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("is_enabled" IN (0, 1))',
+    ),
+  );
+  static const VerificationMeta _createdAtMeta = const VerificationMeta(
+    'createdAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
+    'created_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _updatedAtMeta = const VerificationMeta(
+    'updatedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> updatedAt = GeneratedColumn<DateTime>(
+    'updated_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    userId,
+    intervalMinutes,
+    startTimeMinutes,
+    endTimeMinutes,
+    isEnabled,
+    createdAt,
+    updatedAt,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'reminders';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<Reminder> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('user_id')) {
+      context.handle(
+        _userIdMeta,
+        userId.isAcceptableOrUnknown(data['user_id']!, _userIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_userIdMeta);
+    }
+    if (data.containsKey('interval_minutes')) {
+      context.handle(
+        _intervalMinutesMeta,
+        intervalMinutes.isAcceptableOrUnknown(
+          data['interval_minutes']!,
+          _intervalMinutesMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_intervalMinutesMeta);
+    }
+    if (data.containsKey('start_time_minutes')) {
+      context.handle(
+        _startTimeMinutesMeta,
+        startTimeMinutes.isAcceptableOrUnknown(
+          data['start_time_minutes']!,
+          _startTimeMinutesMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_startTimeMinutesMeta);
+    }
+    if (data.containsKey('end_time_minutes')) {
+      context.handle(
+        _endTimeMinutesMeta,
+        endTimeMinutes.isAcceptableOrUnknown(
+          data['end_time_minutes']!,
+          _endTimeMinutesMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_endTimeMinutesMeta);
+    }
+    if (data.containsKey('is_enabled')) {
+      context.handle(
+        _isEnabledMeta,
+        isEnabled.isAcceptableOrUnknown(data['is_enabled']!, _isEnabledMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_isEnabledMeta);
+    }
+    if (data.containsKey('created_at')) {
+      context.handle(
+        _createdAtMeta,
+        createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_createdAtMeta);
+    }
+    if (data.containsKey('updated_at')) {
+      context.handle(
+        _updatedAtMeta,
+        updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_updatedAtMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  List<Set<GeneratedColumn>> get uniqueKeys => [
+    {userId},
+  ];
+  @override
+  Reminder map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return Reminder(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}id'],
+      )!,
+      userId: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}user_id'],
+      )!,
+      intervalMinutes: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}interval_minutes'],
+      )!,
+      startTimeMinutes: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}start_time_minutes'],
+      )!,
+      endTimeMinutes: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}end_time_minutes'],
+      )!,
+      isEnabled: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}is_enabled'],
+      )!,
+      createdAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}created_at'],
+      )!,
+      updatedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}updated_at'],
+      )!,
+    );
+  }
+
+  @override
+  $RemindersTable createAlias(String alias) {
+    return $RemindersTable(attachedDatabase, alias);
+  }
+}
+
+class Reminder extends DataClass implements Insertable<Reminder> {
+  final int id;
+
+  /// Links this reminder configuration to the owning profile in the
+  /// Users table.
+  final int userId;
+  final int intervalMinutes;
+
+  /// Minutes since midnight (0–1439). e.g. 08:00 -> 480.
+  final int startTimeMinutes;
+
+  /// Minutes since midnight (0–1439). e.g. 20:00 -> 1200.
+  final int endTimeMinutes;
+  final bool isEnabled;
+  final DateTime createdAt;
+  final DateTime updatedAt;
+  const Reminder({
+    required this.id,
+    required this.userId,
+    required this.intervalMinutes,
+    required this.startTimeMinutes,
+    required this.endTimeMinutes,
+    required this.isEnabled,
+    required this.createdAt,
+    required this.updatedAt,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    map['user_id'] = Variable<int>(userId);
+    map['interval_minutes'] = Variable<int>(intervalMinutes);
+    map['start_time_minutes'] = Variable<int>(startTimeMinutes);
+    map['end_time_minutes'] = Variable<int>(endTimeMinutes);
+    map['is_enabled'] = Variable<bool>(isEnabled);
+    map['created_at'] = Variable<DateTime>(createdAt);
+    map['updated_at'] = Variable<DateTime>(updatedAt);
+    return map;
+  }
+
+  RemindersCompanion toCompanion(bool nullToAbsent) {
+    return RemindersCompanion(
+      id: Value(id),
+      userId: Value(userId),
+      intervalMinutes: Value(intervalMinutes),
+      startTimeMinutes: Value(startTimeMinutes),
+      endTimeMinutes: Value(endTimeMinutes),
+      isEnabled: Value(isEnabled),
+      createdAt: Value(createdAt),
+      updatedAt: Value(updatedAt),
+    );
+  }
+
+  factory Reminder.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return Reminder(
+      id: serializer.fromJson<int>(json['id']),
+      userId: serializer.fromJson<int>(json['userId']),
+      intervalMinutes: serializer.fromJson<int>(json['intervalMinutes']),
+      startTimeMinutes: serializer.fromJson<int>(json['startTimeMinutes']),
+      endTimeMinutes: serializer.fromJson<int>(json['endTimeMinutes']),
+      isEnabled: serializer.fromJson<bool>(json['isEnabled']),
+      createdAt: serializer.fromJson<DateTime>(json['createdAt']),
+      updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'userId': serializer.toJson<int>(userId),
+      'intervalMinutes': serializer.toJson<int>(intervalMinutes),
+      'startTimeMinutes': serializer.toJson<int>(startTimeMinutes),
+      'endTimeMinutes': serializer.toJson<int>(endTimeMinutes),
+      'isEnabled': serializer.toJson<bool>(isEnabled),
+      'createdAt': serializer.toJson<DateTime>(createdAt),
+      'updatedAt': serializer.toJson<DateTime>(updatedAt),
+    };
+  }
+
+  Reminder copyWith({
+    int? id,
+    int? userId,
+    int? intervalMinutes,
+    int? startTimeMinutes,
+    int? endTimeMinutes,
+    bool? isEnabled,
+    DateTime? createdAt,
+    DateTime? updatedAt,
+  }) => Reminder(
+    id: id ?? this.id,
+    userId: userId ?? this.userId,
+    intervalMinutes: intervalMinutes ?? this.intervalMinutes,
+    startTimeMinutes: startTimeMinutes ?? this.startTimeMinutes,
+    endTimeMinutes: endTimeMinutes ?? this.endTimeMinutes,
+    isEnabled: isEnabled ?? this.isEnabled,
+    createdAt: createdAt ?? this.createdAt,
+    updatedAt: updatedAt ?? this.updatedAt,
+  );
+  Reminder copyWithCompanion(RemindersCompanion data) {
+    return Reminder(
+      id: data.id.present ? data.id.value : this.id,
+      userId: data.userId.present ? data.userId.value : this.userId,
+      intervalMinutes: data.intervalMinutes.present
+          ? data.intervalMinutes.value
+          : this.intervalMinutes,
+      startTimeMinutes: data.startTimeMinutes.present
+          ? data.startTimeMinutes.value
+          : this.startTimeMinutes,
+      endTimeMinutes: data.endTimeMinutes.present
+          ? data.endTimeMinutes.value
+          : this.endTimeMinutes,
+      isEnabled: data.isEnabled.present ? data.isEnabled.value : this.isEnabled,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('Reminder(')
+          ..write('id: $id, ')
+          ..write('userId: $userId, ')
+          ..write('intervalMinutes: $intervalMinutes, ')
+          ..write('startTimeMinutes: $startTimeMinutes, ')
+          ..write('endTimeMinutes: $endTimeMinutes, ')
+          ..write('isEnabled: $isEnabled, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    id,
+    userId,
+    intervalMinutes,
+    startTimeMinutes,
+    endTimeMinutes,
+    isEnabled,
+    createdAt,
+    updatedAt,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is Reminder &&
+          other.id == this.id &&
+          other.userId == this.userId &&
+          other.intervalMinutes == this.intervalMinutes &&
+          other.startTimeMinutes == this.startTimeMinutes &&
+          other.endTimeMinutes == this.endTimeMinutes &&
+          other.isEnabled == this.isEnabled &&
+          other.createdAt == this.createdAt &&
+          other.updatedAt == this.updatedAt);
+}
+
+class RemindersCompanion extends UpdateCompanion<Reminder> {
+  final Value<int> id;
+  final Value<int> userId;
+  final Value<int> intervalMinutes;
+  final Value<int> startTimeMinutes;
+  final Value<int> endTimeMinutes;
+  final Value<bool> isEnabled;
+  final Value<DateTime> createdAt;
+  final Value<DateTime> updatedAt;
+  const RemindersCompanion({
+    this.id = const Value.absent(),
+    this.userId = const Value.absent(),
+    this.intervalMinutes = const Value.absent(),
+    this.startTimeMinutes = const Value.absent(),
+    this.endTimeMinutes = const Value.absent(),
+    this.isEnabled = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+  });
+  RemindersCompanion.insert({
+    this.id = const Value.absent(),
+    required int userId,
+    required int intervalMinutes,
+    required int startTimeMinutes,
+    required int endTimeMinutes,
+    required bool isEnabled,
+    required DateTime createdAt,
+    required DateTime updatedAt,
+  }) : userId = Value(userId),
+       intervalMinutes = Value(intervalMinutes),
+       startTimeMinutes = Value(startTimeMinutes),
+       endTimeMinutes = Value(endTimeMinutes),
+       isEnabled = Value(isEnabled),
+       createdAt = Value(createdAt),
+       updatedAt = Value(updatedAt);
+  static Insertable<Reminder> custom({
+    Expression<int>? id,
+    Expression<int>? userId,
+    Expression<int>? intervalMinutes,
+    Expression<int>? startTimeMinutes,
+    Expression<int>? endTimeMinutes,
+    Expression<bool>? isEnabled,
+    Expression<DateTime>? createdAt,
+    Expression<DateTime>? updatedAt,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (userId != null) 'user_id': userId,
+      if (intervalMinutes != null) 'interval_minutes': intervalMinutes,
+      if (startTimeMinutes != null) 'start_time_minutes': startTimeMinutes,
+      if (endTimeMinutes != null) 'end_time_minutes': endTimeMinutes,
+      if (isEnabled != null) 'is_enabled': isEnabled,
+      if (createdAt != null) 'created_at': createdAt,
+      if (updatedAt != null) 'updated_at': updatedAt,
+    });
+  }
+
+  RemindersCompanion copyWith({
+    Value<int>? id,
+    Value<int>? userId,
+    Value<int>? intervalMinutes,
+    Value<int>? startTimeMinutes,
+    Value<int>? endTimeMinutes,
+    Value<bool>? isEnabled,
+    Value<DateTime>? createdAt,
+    Value<DateTime>? updatedAt,
+  }) {
+    return RemindersCompanion(
+      id: id ?? this.id,
+      userId: userId ?? this.userId,
+      intervalMinutes: intervalMinutes ?? this.intervalMinutes,
+      startTimeMinutes: startTimeMinutes ?? this.startTimeMinutes,
+      endTimeMinutes: endTimeMinutes ?? this.endTimeMinutes,
+      isEnabled: isEnabled ?? this.isEnabled,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (userId.present) {
+      map['user_id'] = Variable<int>(userId.value);
+    }
+    if (intervalMinutes.present) {
+      map['interval_minutes'] = Variable<int>(intervalMinutes.value);
+    }
+    if (startTimeMinutes.present) {
+      map['start_time_minutes'] = Variable<int>(startTimeMinutes.value);
+    }
+    if (endTimeMinutes.present) {
+      map['end_time_minutes'] = Variable<int>(endTimeMinutes.value);
+    }
+    if (isEnabled.present) {
+      map['is_enabled'] = Variable<bool>(isEnabled.value);
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<DateTime>(createdAt.value);
+    }
+    if (updatedAt.present) {
+      map['updated_at'] = Variable<DateTime>(updatedAt.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('RemindersCompanion(')
+          ..write('id: $id, ')
+          ..write('userId: $userId, ')
+          ..write('intervalMinutes: $intervalMinutes, ')
+          ..write('startTimeMinutes: $startTimeMinutes, ')
+          ..write('endTimeMinutes: $endTimeMinutes, ')
+          ..write('isEnabled: $isEnabled, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   $AppDatabaseManager get managers => $AppDatabaseManager(this);
   late final $UsersTable users = $UsersTable(this);
   late final $WaterGoalsTable waterGoals = $WaterGoalsTable(this);
   late final $WaterEntriesTable waterEntries = $WaterEntriesTable(this);
+  late final $RemindersTable reminders = $RemindersTable(this);
   late final UsersDao usersDao = UsersDao(this as AppDatabase);
   late final WaterGoalsDao waterGoalsDao = WaterGoalsDao(this as AppDatabase);
   late final WaterEntriesDao waterEntriesDao = WaterEntriesDao(
     this as AppDatabase,
   );
+  late final RemindersDao remindersDao = RemindersDao(this as AppDatabase);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -1181,6 +1715,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     users,
     waterGoals,
     waterEntries,
+    reminders,
   ];
 }
 
@@ -1238,6 +1773,24 @@ final class $$UsersTableReferences
     ).filter((f) => f.userId.id.sqlEquals($_itemColumn<int>('id')!));
 
     final cache = $_typedResult.readTableOrNull(_waterEntriesRefsTable($_db));
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: cache),
+    );
+  }
+
+  static MultiTypedResultKey<$RemindersTable, List<Reminder>>
+  _remindersRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
+    db.reminders,
+    aliasName: 'users__id__reminders__user_id',
+  );
+
+  $$RemindersTableProcessedTableManager get remindersRefs {
+    final manager = $$RemindersTableTableManager(
+      $_db,
+      $_db.reminders,
+    ).filter((f) => f.userId.id.sqlEquals($_itemColumn<int>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(_remindersRefsTable($_db));
     return ProcessedTableManager(
       manager.$state.copyWith(prefetchedData: cache),
     );
@@ -1323,6 +1876,31 @@ class $$UsersTableFilterComposer extends Composer<_$AppDatabase, $UsersTable> {
           }) => $$WaterEntriesTableFilterComposer(
             $db: $db,
             $table: $db.waterEntries,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+
+  Expression<bool> remindersRefs(
+    Expression<bool> Function($$RemindersTableFilterComposer f) f,
+  ) {
+    final $$RemindersTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.reminders,
+      getReferencedColumn: (t) => t.userId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$RemindersTableFilterComposer(
+            $db: $db,
+            $table: $db.reminders,
             $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
             joinBuilder: joinBuilder,
             $removeJoinBuilderFromRootComposer:
@@ -1449,6 +2027,31 @@ class $$UsersTableAnnotationComposer
     );
     return f(composer);
   }
+
+  Expression<T> remindersRefs<T extends Object>(
+    Expression<T> Function($$RemindersTableAnnotationComposer a) f,
+  ) {
+    final $$RemindersTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.reminders,
+      getReferencedColumn: (t) => t.userId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$RemindersTableAnnotationComposer(
+            $db: $db,
+            $table: $db.reminders,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
 }
 
 class $$UsersTableTableManager
@@ -1464,7 +2067,11 @@ class $$UsersTableTableManager
           $$UsersTableUpdateCompanionBuilder,
           (User, $$UsersTableReferences),
           User,
-          PrefetchHooks Function({bool waterGoalsRefs, bool waterEntriesRefs})
+          PrefetchHooks Function({
+            bool waterGoalsRefs,
+            bool waterEntriesRefs,
+            bool remindersRefs,
+          })
         > {
   $$UsersTableTableManager(_$AppDatabase db, $UsersTable table)
     : super(
@@ -1518,12 +2125,17 @@ class $$UsersTableTableManager
               )
               .toList(),
           prefetchHooksCallback:
-              ({waterGoalsRefs = false, waterEntriesRefs = false}) {
+              ({
+                waterGoalsRefs = false,
+                waterEntriesRefs = false,
+                remindersRefs = false,
+              }) {
                 return PrefetchHooks(
                   db: db,
                   explicitlyWatchedTables: [
                     if (waterGoalsRefs) db.waterGoals,
                     if (waterEntriesRefs) db.waterEntries,
+                    if (remindersRefs) db.reminders,
                   ],
                   addJoins: null,
                   getPrefetchedDataCallback: (items) async {
@@ -1566,6 +2178,23 @@ class $$UsersTableTableManager
                               ),
                           typedResults: items,
                         ),
+                      if (remindersRefs)
+                        await $_getPrefetchedData<User, $UsersTable, Reminder>(
+                          currentTable: table,
+                          referencedTable: $$UsersTableReferences
+                              ._remindersRefsTable(db),
+                          managerFromTypedResult: (p0) =>
+                              $$UsersTableReferences(
+                                db,
+                                table,
+                                p0,
+                              ).remindersRefs,
+                          referencedItemsForCurrentItem:
+                              (item, referencedItems) => referencedItems.where(
+                                (e) => e.userId == item.id,
+                              ),
+                          typedResults: items,
+                        ),
                     ];
                   },
                 );
@@ -1586,7 +2215,11 @@ typedef $$UsersTableProcessedTableManager =
       $$UsersTableUpdateCompanionBuilder,
       (User, $$UsersTableReferences),
       User,
-      PrefetchHooks Function({bool waterGoalsRefs, bool waterEntriesRefs})
+      PrefetchHooks Function({
+        bool waterGoalsRefs,
+        bool waterEntriesRefs,
+        bool remindersRefs,
+      })
     >;
 typedef $$WaterGoalsTableCreateCompanionBuilder =
     WaterGoalsCompanion Function({
@@ -2229,6 +2862,380 @@ typedef $$WaterEntriesTableProcessedTableManager =
       WaterEntry,
       PrefetchHooks Function({bool userId})
     >;
+typedef $$RemindersTableCreateCompanionBuilder =
+    RemindersCompanion Function({
+      Value<int> id,
+      required int userId,
+      required int intervalMinutes,
+      required int startTimeMinutes,
+      required int endTimeMinutes,
+      required bool isEnabled,
+      required DateTime createdAt,
+      required DateTime updatedAt,
+    });
+typedef $$RemindersTableUpdateCompanionBuilder =
+    RemindersCompanion Function({
+      Value<int> id,
+      Value<int> userId,
+      Value<int> intervalMinutes,
+      Value<int> startTimeMinutes,
+      Value<int> endTimeMinutes,
+      Value<bool> isEnabled,
+      Value<DateTime> createdAt,
+      Value<DateTime> updatedAt,
+    });
+
+final class $$RemindersTableReferences
+    extends BaseReferences<_$AppDatabase, $RemindersTable, Reminder> {
+  $$RemindersTableReferences(super.$_db, super.$_table, super.$_typedResult);
+
+  static $UsersTable _userIdTable(_$AppDatabase db) =>
+      db.users.createAlias('reminders__user_id__users__id');
+
+  $$UsersTableProcessedTableManager get userId {
+    final $_column = $_itemColumn<int>('user_id')!;
+
+    final manager = $$UsersTableTableManager(
+      $_db,
+      $_db.users,
+    ).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_userIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
+}
+
+class $$RemindersTableFilterComposer
+    extends Composer<_$AppDatabase, $RemindersTable> {
+  $$RemindersTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get intervalMinutes => $composableBuilder(
+    column: $table.intervalMinutes,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get startTimeMinutes => $composableBuilder(
+    column: $table.startTimeMinutes,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get endTimeMinutes => $composableBuilder(
+    column: $table.endTimeMinutes,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get isEnabled => $composableBuilder(
+    column: $table.isEnabled,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  $$UsersTableFilterComposer get userId {
+    final $$UsersTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.userId,
+      referencedTable: $db.users,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$UsersTableFilterComposer(
+            $db: $db,
+            $table: $db.users,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$RemindersTableOrderingComposer
+    extends Composer<_$AppDatabase, $RemindersTable> {
+  $$RemindersTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get intervalMinutes => $composableBuilder(
+    column: $table.intervalMinutes,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get startTimeMinutes => $composableBuilder(
+    column: $table.startTimeMinutes,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get endTimeMinutes => $composableBuilder(
+    column: $table.endTimeMinutes,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get isEnabled => $composableBuilder(
+    column: $table.isEnabled,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  $$UsersTableOrderingComposer get userId {
+    final $$UsersTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.userId,
+      referencedTable: $db.users,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$UsersTableOrderingComposer(
+            $db: $db,
+            $table: $db.users,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$RemindersTableAnnotationComposer
+    extends Composer<_$AppDatabase, $RemindersTable> {
+  $$RemindersTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<int> get intervalMinutes => $composableBuilder(
+    column: $table.intervalMinutes,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get startTimeMinutes => $composableBuilder(
+    column: $table.startTimeMinutes,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get endTimeMinutes => $composableBuilder(
+    column: $table.endTimeMinutes,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<bool> get isEnabled =>
+      $composableBuilder(column: $table.isEnabled, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get updatedAt =>
+      $composableBuilder(column: $table.updatedAt, builder: (column) => column);
+
+  $$UsersTableAnnotationComposer get userId {
+    final $$UsersTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.userId,
+      referencedTable: $db.users,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$UsersTableAnnotationComposer(
+            $db: $db,
+            $table: $db.users,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$RemindersTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $RemindersTable,
+          Reminder,
+          $$RemindersTableFilterComposer,
+          $$RemindersTableOrderingComposer,
+          $$RemindersTableAnnotationComposer,
+          $$RemindersTableCreateCompanionBuilder,
+          $$RemindersTableUpdateCompanionBuilder,
+          (Reminder, $$RemindersTableReferences),
+          Reminder,
+          PrefetchHooks Function({bool userId})
+        > {
+  $$RemindersTableTableManager(_$AppDatabase db, $RemindersTable table)
+    : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$RemindersTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$RemindersTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$RemindersTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                Value<int> userId = const Value.absent(),
+                Value<int> intervalMinutes = const Value.absent(),
+                Value<int> startTimeMinutes = const Value.absent(),
+                Value<int> endTimeMinutes = const Value.absent(),
+                Value<bool> isEnabled = const Value.absent(),
+                Value<DateTime> createdAt = const Value.absent(),
+                Value<DateTime> updatedAt = const Value.absent(),
+              }) => RemindersCompanion(
+                id: id,
+                userId: userId,
+                intervalMinutes: intervalMinutes,
+                startTimeMinutes: startTimeMinutes,
+                endTimeMinutes: endTimeMinutes,
+                isEnabled: isEnabled,
+                createdAt: createdAt,
+                updatedAt: updatedAt,
+              ),
+          createCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                required int userId,
+                required int intervalMinutes,
+                required int startTimeMinutes,
+                required int endTimeMinutes,
+                required bool isEnabled,
+                required DateTime createdAt,
+                required DateTime updatedAt,
+              }) => RemindersCompanion.insert(
+                id: id,
+                userId: userId,
+                intervalMinutes: intervalMinutes,
+                startTimeMinutes: startTimeMinutes,
+                endTimeMinutes: endTimeMinutes,
+                isEnabled: isEnabled,
+                createdAt: createdAt,
+                updatedAt: updatedAt,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable<$RemindersTable, Reminder>(table),
+                  $$RemindersTableReferences(db, table, e),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback: ({userId = false}) {
+            return PrefetchHooks(
+              db: db,
+              explicitlyWatchedTables: [],
+              addJoins:
+                  <
+                    T extends TableManagerState<
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic
+                    >
+                  >(state) {
+                    if (userId) {
+                      state =
+                          state.withJoin(
+                                currentTable: table,
+                                currentColumn: table.userId,
+                                referencedTable: $$RemindersTableReferences
+                                    ._userIdTable(db),
+                                referencedColumn: $$RemindersTableReferences
+                                    ._userIdTable(db)
+                                    .id,
+                              )
+                              as T;
+                    }
+
+                    return state;
+                  },
+              getPrefetchedDataCallback: (items) async {
+                return [];
+              },
+            );
+          },
+        ),
+      );
+}
+
+typedef $$RemindersTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $RemindersTable,
+      Reminder,
+      $$RemindersTableFilterComposer,
+      $$RemindersTableOrderingComposer,
+      $$RemindersTableAnnotationComposer,
+      $$RemindersTableCreateCompanionBuilder,
+      $$RemindersTableUpdateCompanionBuilder,
+      (Reminder, $$RemindersTableReferences),
+      Reminder,
+      PrefetchHooks Function({bool userId})
+    >;
 
 class $AppDatabaseManager {
   final _$AppDatabase _db;
@@ -2239,4 +3246,6 @@ class $AppDatabaseManager {
       $$WaterGoalsTableTableManager(_db, _db.waterGoals);
   $$WaterEntriesTableTableManager get waterEntries =>
       $$WaterEntriesTableTableManager(_db, _db.waterEntries);
+  $$RemindersTableTableManager get reminders =>
+      $$RemindersTableTableManager(_db, _db.reminders);
 }

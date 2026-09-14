@@ -9,7 +9,7 @@ import 'package:water_tracker_app/core/constants/image_const.dart';
 import 'package:water_tracker_app/features/streak/presentation/screens/streak_calendar_screen.dart';
 import 'package:water_tracker_app/features/water_calculator/presentation/screens/water_calculator_screen.dart';
 import 'package:water_tracker_app/l10n/app_localizations.dart';
-import 'package:water_tracker_app/screens/settings/reminder_screen.dart';
+import 'package:water_tracker_app/features/reminder/presentation/screens/reminder_screen.dart';
 import 'package:water_tracker_app/screens/settings/water_goal_screen.dart';
 
 class SettingsScreen extends StatelessWidget {
