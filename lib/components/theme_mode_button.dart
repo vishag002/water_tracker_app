@@ -11,9 +11,15 @@ class ThemeToggleButton extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final themeType = ref.watch(themeProvider);
-    final isLightMode = themeType != ThemeType.dark;
-    final theme = Theme.of(context);
+    final platformBrightness = MediaQuery.platformBrightnessOf(context);
 
+    final isDark =
+        themeType == ThemeType.dark ||
+        (themeType == ThemeType.system &&
+            platformBrightness == Brightness.dark);
+    final isLightMode = !isDark;
+
+    final theme = Theme.of(context);
     return Container(
       width: 320.w,
       height: 80.h,

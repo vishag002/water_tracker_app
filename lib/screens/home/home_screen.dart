@@ -150,6 +150,19 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                     ),
                   ],
                 ),
+                // ElevatedButton(
+                //   onPressed: () async {
+                //     final now = DateTime.now();
+                //     final testTime = now.add(const Duration(minutes: 1));
+
+                //     await NotificationService.instance.scheduleDailyReminder(
+                //       id: 999,
+                //       hour: testTime.hour,
+                //       minute: testTime.minute,
+                //     );
+                //   },
+                //   child: const Text('Test Notification'),
+                // ),
               ],
             ),
             // Bottle area: instead of a fixed 200x380 box, this now

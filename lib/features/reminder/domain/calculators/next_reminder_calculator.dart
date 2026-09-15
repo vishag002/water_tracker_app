@@ -55,24 +55,74 @@ class NextReminderCalculator {
     reason: NextReminderUnavailableReason.windowEnded,
   );
 
-  /// Computes the next reminder (and a short upcoming list) for "today",
-  /// where "today" is [now]'s calendar date.
+  /// Raw minute-of-day slots for `[startTimeMinutes, endTimeMinutes]`
+  /// stepped by `intervalMinutes` — no "now" filtering, no goal check.
+  /// This is the single source of truth for "what times does this
+  /// window+interval config represent", shared by the on-screen
+  /// calculator (below) and by notification scheduling, so the two
+  /// never drift into disagreeing about the schedule.
+  static List<int> generateSlotMinutes({
+    required int startTimeMinutes,
+    required int endTimeMinutes,
+    required int intervalMinutes,
+  }) {
+    if (intervalMinutes <= 0) return const [];
+
+    final slots = <int>[];
+    var slotMinutes = startTimeMinutes;
+    while (slotMinutes <= endTimeMinutes) {
+      slots.add(slotMinutes);
+      slotMinutes += intervalMinutes;
+    }
+    return slots;
+  }
+
+  /// Single source of truth for "which reminder slots are still valid
+  /// today, right now" — shared by the on-screen [calculate] (which
+  /// caps the result at `maxUpcoming` for the UI timeline) and by
+  /// notification scheduling (which needs every remaining slot, since
+  /// each one becomes a scheduled OS notification).
   ///
-  /// The schedule is anchored to [startTimeMinutes] and stepped by
-  /// [intervalMinutes] — never `now + interval`, which would drift every
-  /// time this is recalculated. A slot is valid if it falls within
-  /// `[startTimeMinutes, endTimeMinutes]` (inclusive on both ends), and
-  /// the returned reminder is always the first valid slot *strictly
-  /// after* [now] — a slot equal to [now] doesn't count, per the
-  /// "current time exactly on a slot" rule.
-  ///
-  /// Returns [NextReminderUnavailableReason.disabled] immediately if
-  /// [isEnabled] is false, and [NextReminderUnavailableReason.goalReached]
-  /// immediately if [todayIntakeMl] has met or passed [todayGoalMl] —
-  /// neither check needs to look at the schedule at all.
-  ///
-  /// Only ever looks at today's slots; it does not roll over to
-  /// tomorrow's start time once today's window has passed.
+  /// Applies every gating rule exactly once:
+  /// 1. `isEnabled` false -> empty.
+  /// 2. `todayIntakeMl >= todayGoalMl` -> empty.
+  /// 3. Slots are generated from the interval/start/end window via
+  ///    [generateSlotMinutes] (already guards `intervalMinutes <= 0`).
+  /// 4. Only slots strictly after `now` are returned — a slot exactly
+  ///    equal to `now` is excluded, and nothing capped.
+  static List<DateTime> remainingSlotsToday({
+    required DateTime now,
+    required int startTimeMinutes,
+    required int endTimeMinutes,
+    required int intervalMinutes,
+    required bool isEnabled,
+    required int todayIntakeMl,
+    required int todayGoalMl,
+  }) {
+    if (!isEnabled) return const [];
+    if (todayIntakeMl >= todayGoalMl) return const [];
+
+    final slotMinutesList = generateSlotMinutes(
+      startTimeMinutes: startTimeMinutes,
+      endTimeMinutes: endTimeMinutes,
+      intervalMinutes: intervalMinutes,
+    );
+    if (slotMinutesList.isEmpty) return const [];
+
+    final slots = <DateTime>[];
+    for (final minutes in slotMinutesList) {
+      final slot = DateTime(
+        now.year,
+        now.month,
+        now.day,
+        minutes ~/ 60,
+        minutes % 60,
+      );
+      if (slot.isAfter(now)) slots.add(slot);
+    }
+    return slots;
+  }
+
   static NextReminderResult calculate({
     required DateTime now,
     required int startTimeMinutes,
@@ -91,8 +141,6 @@ class NextReminderCalculator {
       );
     }
 
-    // The goal is a target, not a ceiling: reaching OR passing it stops
-    // reminders for the rest of the day.
     if (todayIntakeMl >= todayGoalMl) {
       return const NextReminderResult(
         nextReminder: null,
@@ -101,41 +149,25 @@ class NextReminderCalculator {
       );
     }
 
-    // Defensive — the repository layer already rejects intervalMinutes
-    // <= 0, but a calculator with no Drift/Riverpod visibility shouldn't
-    // assume its caller always validated first.
-    if (intervalMinutes <= 0) {
-      return _unavailable;
-    }
+    final slots = remainingSlotsToday(
+      now: now,
+      startTimeMinutes: startTimeMinutes,
+      endTimeMinutes: endTimeMinutes,
+      intervalMinutes: intervalMinutes,
+      isEnabled: isEnabled,
+      todayIntakeMl: todayIntakeMl,
+      todayGoalMl: todayGoalMl,
+    );
 
-    final slots = <DateTime>[];
-    var slotMinutes = startTimeMinutes;
+    if (slots.isEmpty) return _unavailable;
 
-    while (slotMinutes <= endTimeMinutes) {
-      final slot = DateTime(
-        now.year,
-        now.month,
-        now.day,
-        slotMinutes ~/ 60,
-        slotMinutes % 60,
-      );
-
-      // Strictly after `now` — a slot equal to `now` has already fired.
-      if (slot.isAfter(now)) {
-        slots.add(slot);
-        if (slots.length >= maxUpcoming) break;
-      }
-
-      slotMinutes += intervalMinutes;
-    }
-
-    if (slots.isEmpty) {
-      return _unavailable;
-    }
+    final capped = slots.length > maxUpcoming
+        ? slots.sublist(0, maxUpcoming)
+        : slots;
 
     return NextReminderResult(
-      nextReminder: slots.first,
-      upcomingReminders: slots,
+      nextReminder: capped.first,
+      upcomingReminders: capped,
       reason: NextReminderUnavailableReason.none,
     );
   }

@@ -159,6 +159,18 @@ class _ReminderScreenState extends ConsumerState<ReminderScreen> {
   @override
   Widget build(BuildContext context) {
     final reminderAsync = ref.watch(currentReminderProvider);
+    // Keeps scheduled OS notifications in sync with the Drift config.
+    // Deliberately just a listener, not a call site: ReminderScreen still
+    // never schedules anything itself, it only reacts to the same stream
+    // driving its own UI.
+    // ref.listen<AsyncValue<Reminder?>>(currentReminderProvider, (
+    //   previous,
+    //   next,
+    // ) {
+    //   final reminder = next.value;
+    //   if (reminder == previous?.value) return;
+    //   ref.read(reminderNotificationCoordinatorProvider).sync(reminder);
+    // });
 
     return ScaffoldCustom(
       title: 'Reminders',

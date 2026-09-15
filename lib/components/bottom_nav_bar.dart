@@ -1,20 +1,22 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:water_tracker_app/core/app_text_styles.dart';
 import 'package:water_tracker_app/core/constants/colour_const.dart';
 import 'package:water_tracker_app/core/constants/image_const.dart';
 import 'package:water_tracker_app/features/history/presentation/screens/history_screens.dart';
+import 'package:water_tracker_app/features/reminder/presentation/provider/reminder_provider.dart';
 import 'package:water_tracker_app/screens/home/home_screen.dart';
 import 'package:water_tracker_app/screens/settings/settings_screen.dart';
 
-class MainNavScreen extends StatefulWidget {
+class MainNavScreen extends ConsumerStatefulWidget {
   const MainNavScreen({super.key});
 
   @override
-  State<MainNavScreen> createState() => _MainNavScreenState();
+  ConsumerState<MainNavScreen> createState() => _MainNavScreenState();
 }
 
-class _MainNavScreenState extends State<MainNavScreen> {
+class _MainNavScreenState extends ConsumerState<MainNavScreen> {
   int _selectedIndex = 0;
 
   static const _tabs = [
@@ -56,6 +58,23 @@ class _MainNavScreenState extends State<MainNavScreen> {
 
   @override
   Widget build(BuildContext context) {
+    // The one global trigger for hydration-reminder notification sync.
+    // MainNavScreen hosts the Home/History/Settings tabs and stays
+    // mounted for as long as the app is running past onboarding, so
+    // it — unlike ReminderScreen — reliably observes intake changes
+    // made from Home, goal changes made from Settings, and reminder
+    // config changes made from ReminderScreen, all in one place.
+    ref.listen<ReminderSyncState?>(reminderSyncStateProvider, (previous, next) {
+      if (next == null || next == previous) return;
+      ref
+          .read(reminderNotificationCoordinatorProvider)
+          .sync(
+            reminder: next.reminder,
+            todayIntakeMl: next.todayIntakeMl,
+            todayGoalMl: next.todayGoalMl,
+          );
+    });
+
     return Scaffold(
       body: _currentTab,
       bottomNavigationBar: SafeArea(
