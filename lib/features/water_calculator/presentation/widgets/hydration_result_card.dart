@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:water_tracker_app/core/app_text_styles.dart';
+import 'package:water_tracker_app/core/services/general_service.dart';
 import 'package:water_tracker_app/features/water_calculator/domain/models/water_calculator_result.dart';
 
 class HydrationResultCard extends StatelessWidget {
@@ -52,7 +53,13 @@ class HydrationResultCard extends StatelessWidget {
                       text: TextSpan(
                         children: [
                           TextSpan(
-                            text: r.totalWaterLiters.toStringAsFixed(2),
+                            // Same rounding/trailing-zero rules as the
+                            // stored goal everywhere else in the app; the
+                            // ' L' suffix below is kept as its own span so
+                            // it can carry a different text style.
+                            text: GeneralService.formatGoal(
+                              r.totalWaterLiters,
+                            ).replaceFirst(' L', ''),
                             style: AppTextStyles.headingSemiBold.copyWith(
                               fontSize: 40.sp,
                               color: theme.colorScheme.primary,

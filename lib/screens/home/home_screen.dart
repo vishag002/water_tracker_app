@@ -8,6 +8,8 @@ import 'package:water_tracker_app/components/quick_add_button_widget.dart';
 import 'package:water_tracker_app/components/scaffold_custom.dart';
 import 'package:water_tracker_app/core/app_text_styles.dart';
 import 'package:water_tracker_app/core/constants/image_const.dart';
+import 'package:water_tracker_app/core/services/general_service.dart';
+import 'package:water_tracker_app/features/streak/presentation/providers/streak_provider.dart';
 import 'package:water_tracker_app/l10n/app_localizations.dart';
 import 'package:water_tracker_app/providers/user_name_provider.dart';
 import 'package:water_tracker_app/providers/water_entry_provider.dart';
@@ -39,9 +41,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     waveSpeed: 0.01, // idle speed — raise to speed up the breathing
   );
 
-  // TODO: wire this up to your real streak-tracking source.
-  final int _streakDays = 3;
-
   @override
   void initState() {
     super.initState();
@@ -58,14 +57,14 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       final goalRepo = ref.read(waterGoalRepositoryProvider);
       var existingGoal = await goalRepo.getWaterGoal(user.id);
       if (existingGoal == null) {
-        await goalRepo.createWaterGoal(userId: user.id, goal: 2, unit: 'L');
+        await goalRepo.createWaterGoal(userId: user.id, goal: 2.0, unit: 'L');
         existingGoal = await goalRepo.getWaterGoal(user.id);
       }
       if (!mounted) return;
 
       // "Full" now means "goal reached" — set this before setLevel below so
       // the very first fill fraction is computed against the right scale.
-      _waterController.updateMaxLevel((existingGoal?.goal ?? 2).toDouble());
+      _waterController.updateMaxLevel((existingGoal?.goal ?? 2.0).toDouble());
 
       // One-time restore: pull today's real total from Drift and sync the
       // bottle to it. ref.listen in build() only reacts to changes *after*
@@ -108,6 +107,12 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     final goalAsync = ref.watch(currentWaterGoalProvider);
     final todaysIntakeMl = ref.watch(todaysWaterIntakeMlProvider);
     final todaysIntakeLiters = todaysIntakeMl / 1000;
+
+    // Same streakProvider the Streak screen's CurrentStreakCard watches
+    // (real water_entries + goal, run through StreakCalculator). Falls
+    // back to 0 while loading, on error, or when there's no streak yet.
+    final streakAsync = ref.watch(streakProvider(DateTime.now()));
+    final streakDays = streakAsync.value?.currentStreak ?? 0;
 
     // Reacts to every change from here on — new entries, deletions, etc.
     // The initial value is already handled above in initState.
@@ -217,7 +222,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                                             ),
                                             SizedBox(height: 2.h),
                                             Text(
-                                              _streakDays.toString().padLeft(
+                                              streakDays.toString().padLeft(
                                                 2,
                                                 '0',
                                               ),
@@ -309,7 +314,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                                 ),
                                 SizedBox(height: 2.h),
                                 Text(
-                                  'of ${goalAsync.value?.goal ?? 2}L',
+                                  'of ${GeneralService.formatGoal(goalAsync.value?.goal ?? 2.0)}',
                                   textAlign: TextAlign.center,
                                   style: AppTextStyles.bodySmallRegular
                                       .copyWith(color: Colors.white),
@@ -331,14 +336,14 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                 WaterGoalEditDialog.show(
                   context,
                   userId: userId,
-                  currentGoal: goalAsync.value?.goal ?? 2,
+                  currentGoal: goalAsync.value?.goal ?? 2.0,
                 );
               },
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(
-                    localizations.homeGoalLabel(goalAsync.value?.goal ?? 2),
+                    localizations.homeGoalLabel(goalAsync.value?.goal ?? 2.0),
                     style: AppTextStyles.bodySmallRegular,
                   ),
                   SizedBox(width: 5.w),

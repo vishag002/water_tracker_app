@@ -6,7 +6,7 @@ import 'package:water_tracker_app/providers/water_goal_provider.dart';
 /// Same default the app seeds on first launch (see HomeScreen) — used
 /// only as a display fallback before the real goal has loaded. Mirrors
 /// weeklyHistoryProvider/monthlyHistoryProvider's fallback.
-const int _defaultGoalLiters = 2;
+const double _defaultGoalLiters = 2.0;
 
 /// Combines the user's *entire* entry history with the current goal and
 /// runs them through [StreakCalculator]. This is the single entry point
@@ -50,7 +50,8 @@ final streakProvider =
       // The goal table's `unit` isn't user-selectable yet (see
       // WaterGoalEditDialog) — goals are always entered and stored in
       // liters for V1, same assumption Daily/Week/Month make.
-      final goalMl = (goalAsync.value?.goal ?? _defaultGoalLiters) * 1000;
+      final goalMl = ((goalAsync.value?.goal ?? _defaultGoalLiters) * 1000)
+          .round();
 
       final result = StreakCalculator.calculate(
         entries: entries

@@ -14,7 +14,7 @@ import 'package:water_tracker_app/screens/home/domain/calculators/daily_intake_c
 /// Same default the app seeds on first launch (see HomeScreen) — used
 /// only as a display fallback before the real goal has loaded. Mirrors
 /// weeklyHistoryProvider's fallback.
-const int _defaultGoalLiters = 2;
+const double _defaultGoalLiters = 2.0;
 
 /// Real entries for [selectedDate], reusing the existing
 /// [waterEntriesForDayProvider] — the same provider the Daily tab
@@ -77,7 +77,7 @@ class SelectedDayHistory extends ConsumerWidget {
     List<WaterEntry> entries,
     WaterGoal? goal,
   ) {
-    final goalMl = (goal?.goal ?? _defaultGoalLiters) * 1000;
+    final goalMl = ((goal?.goal ?? _defaultGoalLiters) * 1000).round();
     final totalIntake = DailyIntakeCalculator.totalMl(
       entries.map((e) => e.amount).toList(),
     );
@@ -107,7 +107,7 @@ class SelectedDayHistory extends ConsumerWidget {
                   ),
                   SizedBox(height: 2.h),
                   Text(
-                    'of ${GeneralService.formatWater(goalMl)}',
+                    'of ${GeneralService.formatGoal(goalMl / 1000)}',
                     style: AppTextStyles.bodySmallMedium.copyWith(
                       color: theme.colorScheme.onSurface.withOpacity(0.6),
                     ),

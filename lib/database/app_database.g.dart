@@ -432,11 +432,11 @@ class $WaterGoalsTable extends WaterGoals
   );
   static const VerificationMeta _goalMeta = const VerificationMeta('goal');
   @override
-  late final GeneratedColumn<int> goal = GeneratedColumn<int>(
+  late final GeneratedColumn<double> goal = GeneratedColumn<double>(
     'goal',
     aliasedName,
     false,
-    type: DriftSqlType.int,
+    type: DriftSqlType.double,
     requiredDuringInsert: true,
   );
   static const VerificationMeta _unitMeta = const VerificationMeta('unit');
@@ -560,7 +560,7 @@ class $WaterGoalsTable extends WaterGoals
         data['${effectivePrefix}user_id'],
       )!,
       goal: attachedDatabase.typeMapping.read(
-        DriftSqlType.int,
+        DriftSqlType.double,
         data['${effectivePrefix}goal'],
       )!,
       unit: attachedDatabase.typeMapping.read(
@@ -590,8 +590,8 @@ class WaterGoal extends DataClass implements Insertable<WaterGoal> {
   /// Links this goal to the owning profile in the Users table.
   final int userId;
 
-  /// Stored as a plain integer amount in whatever `unit` says, e.g. 2500.
-  final int goal;
+  /// Stored as a fractional amount in whatever `unit` says, e.g. 2.5.
+  final double goal;
 
   /// e.g. 'ml' or 'oz'.
   final String unit;
@@ -610,7 +610,7 @@ class WaterGoal extends DataClass implements Insertable<WaterGoal> {
     final map = <String, Expression>{};
     map['id'] = Variable<int>(id);
     map['user_id'] = Variable<int>(userId);
-    map['goal'] = Variable<int>(goal);
+    map['goal'] = Variable<double>(goal);
     map['unit'] = Variable<String>(unit);
     map['created_at'] = Variable<DateTime>(createdAt);
     map['updated_at'] = Variable<DateTime>(updatedAt);
@@ -636,7 +636,7 @@ class WaterGoal extends DataClass implements Insertable<WaterGoal> {
     return WaterGoal(
       id: serializer.fromJson<int>(json['id']),
       userId: serializer.fromJson<int>(json['userId']),
-      goal: serializer.fromJson<int>(json['goal']),
+      goal: serializer.fromJson<double>(json['goal']),
       unit: serializer.fromJson<String>(json['unit']),
       createdAt: serializer.fromJson<DateTime>(json['createdAt']),
       updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
@@ -648,7 +648,7 @@ class WaterGoal extends DataClass implements Insertable<WaterGoal> {
     return <String, dynamic>{
       'id': serializer.toJson<int>(id),
       'userId': serializer.toJson<int>(userId),
-      'goal': serializer.toJson<int>(goal),
+      'goal': serializer.toJson<double>(goal),
       'unit': serializer.toJson<String>(unit),
       'createdAt': serializer.toJson<DateTime>(createdAt),
       'updatedAt': serializer.toJson<DateTime>(updatedAt),
@@ -658,7 +658,7 @@ class WaterGoal extends DataClass implements Insertable<WaterGoal> {
   WaterGoal copyWith({
     int? id,
     int? userId,
-    int? goal,
+    double? goal,
     String? unit,
     DateTime? createdAt,
     DateTime? updatedAt,
@@ -711,7 +711,7 @@ class WaterGoal extends DataClass implements Insertable<WaterGoal> {
 class WaterGoalsCompanion extends UpdateCompanion<WaterGoal> {
   final Value<int> id;
   final Value<int> userId;
-  final Value<int> goal;
+  final Value<double> goal;
   final Value<String> unit;
   final Value<DateTime> createdAt;
   final Value<DateTime> updatedAt;
@@ -726,7 +726,7 @@ class WaterGoalsCompanion extends UpdateCompanion<WaterGoal> {
   WaterGoalsCompanion.insert({
     this.id = const Value.absent(),
     required int userId,
-    required int goal,
+    required double goal,
     required String unit,
     required DateTime createdAt,
     required DateTime updatedAt,
@@ -738,7 +738,7 @@ class WaterGoalsCompanion extends UpdateCompanion<WaterGoal> {
   static Insertable<WaterGoal> custom({
     Expression<int>? id,
     Expression<int>? userId,
-    Expression<int>? goal,
+    Expression<double>? goal,
     Expression<String>? unit,
     Expression<DateTime>? createdAt,
     Expression<DateTime>? updatedAt,
@@ -756,7 +756,7 @@ class WaterGoalsCompanion extends UpdateCompanion<WaterGoal> {
   WaterGoalsCompanion copyWith({
     Value<int>? id,
     Value<int>? userId,
-    Value<int>? goal,
+    Value<double>? goal,
     Value<String>? unit,
     Value<DateTime>? createdAt,
     Value<DateTime>? updatedAt,
@@ -781,7 +781,7 @@ class WaterGoalsCompanion extends UpdateCompanion<WaterGoal> {
       map['user_id'] = Variable<int>(userId.value);
     }
     if (goal.present) {
-      map['goal'] = Variable<int>(goal.value);
+      map['goal'] = Variable<double>(goal.value);
     }
     if (unit.present) {
       map['unit'] = Variable<String>(unit.value);
@@ -2225,7 +2225,7 @@ typedef $$WaterGoalsTableCreateCompanionBuilder =
     WaterGoalsCompanion Function({
       Value<int> id,
       required int userId,
-      required int goal,
+      required double goal,
       required String unit,
       required DateTime createdAt,
       required DateTime updatedAt,
@@ -2234,7 +2234,7 @@ typedef $$WaterGoalsTableUpdateCompanionBuilder =
     WaterGoalsCompanion Function({
       Value<int> id,
       Value<int> userId,
-      Value<int> goal,
+      Value<double> goal,
       Value<String> unit,
       Value<DateTime> createdAt,
       Value<DateTime> updatedAt,
@@ -2276,7 +2276,7 @@ class $$WaterGoalsTableFilterComposer
     builder: (column) => ColumnFilters(column),
   );
 
-  ColumnFilters<int> get goal => $composableBuilder(
+  ColumnFilters<double> get goal => $composableBuilder(
     column: $table.goal,
     builder: (column) => ColumnFilters(column),
   );
@@ -2334,7 +2334,7 @@ class $$WaterGoalsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
-  ColumnOrderings<int> get goal => $composableBuilder(
+  ColumnOrderings<double> get goal => $composableBuilder(
     column: $table.goal,
     builder: (column) => ColumnOrderings(column),
   );
@@ -2390,7 +2390,7 @@ class $$WaterGoalsTableAnnotationComposer
   GeneratedColumn<int> get id =>
       $composableBuilder(column: $table.id, builder: (column) => column);
 
-  GeneratedColumn<int> get goal =>
+  GeneratedColumn<double> get goal =>
       $composableBuilder(column: $table.goal, builder: (column) => column);
 
   GeneratedColumn<String> get unit =>
@@ -2456,7 +2456,7 @@ class $$WaterGoalsTableTableManager
               ({
                 Value<int> id = const Value.absent(),
                 Value<int> userId = const Value.absent(),
-                Value<int> goal = const Value.absent(),
+                Value<double> goal = const Value.absent(),
                 Value<String> unit = const Value.absent(),
                 Value<DateTime> createdAt = const Value.absent(),
                 Value<DateTime> updatedAt = const Value.absent(),
@@ -2472,7 +2472,7 @@ class $$WaterGoalsTableTableManager
               ({
                 Value<int> id = const Value.absent(),
                 required int userId,
-                required int goal,
+                required double goal,
                 required String unit,
                 required DateTime createdAt,
                 required DateTime updatedAt,

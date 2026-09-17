@@ -6,7 +6,7 @@ import 'package:water_tracker_app/providers/water_goal_provider.dart';
 
 /// Same "goal is stored in liters" convention used throughout Home and
 /// History — the goal table's `unit` isn't user-editable yet.
-const int _defaultGoalLiters = 2;
+const double _defaultGoalLiters = 2.0;
 
 /// Combines the reminder configuration, today's goal, and today's intake
 /// into the real next-reminder result via [NextReminderCalculator].
@@ -49,7 +49,8 @@ final nextReminderResultProvider = Provider<AsyncValue<NextReminderResult>>((
   }
 
   final reminder = reminderAsync.value;
-  final goalMl = (goalAsync.value?.goal ?? _defaultGoalLiters) * 1000;
+  final goalMl = ((goalAsync.value?.goal ?? _defaultGoalLiters) * 1000)
+      .round();
 
   final result = NextReminderCalculator.calculate(
     now: DateTime.now(),

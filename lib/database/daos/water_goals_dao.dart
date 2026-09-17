@@ -20,7 +20,7 @@ class WaterGoalsDao extends DatabaseAccessor<AppDatabase>
 
   Future<int> createWaterGoal({
     required int userId,
-    required int goal,
+    required double goal,
     required String unit,
   }) {
     final now = DateTime.now();
@@ -38,7 +38,7 @@ class WaterGoalsDao extends DatabaseAccessor<AppDatabase>
   /// Partial update, scoped to the one goal row owned by [userId].
   Future<bool> updateWaterGoal({
     required int userId,
-    Value<int> goal = const Value.absent(),
+    Value<double> goal = const Value.absent(),
     Value<String> unit = const Value.absent(),
   }) async {
     final rows =

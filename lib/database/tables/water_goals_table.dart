@@ -8,8 +8,8 @@ class WaterGoals extends Table {
   /// Links this goal to the owning profile in the Users table.
   IntColumn get userId => integer().references(Users, #id)();
 
-  /// Stored as a plain integer amount in whatever `unit` says, e.g. 2500.
-  IntColumn get goal => integer()();
+  /// Stored as a fractional amount in whatever `unit` says, e.g. 2.5.
+  RealColumn get goal => real()();
 
   /// e.g. 'ml' or 'oz'.
   TextColumn get unit => text().withLength(min: 1, max: 5)();

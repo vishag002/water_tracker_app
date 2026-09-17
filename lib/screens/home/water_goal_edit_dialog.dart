@@ -16,12 +16,12 @@ class WaterGoalEditDialog extends ConsumerStatefulWidget {
   });
 
   final int userId;
-  final int currentGoal;
+  final double currentGoal;
 
   static Future<void> show(
     BuildContext context, {
     required int userId,
-    required int currentGoal,
+    required double currentGoal,
   }) {
     return showDialog<void>(
       context: context,
@@ -37,7 +37,9 @@ class WaterGoalEditDialog extends ConsumerStatefulWidget {
 
 class _WaterGoalEditDialogState extends ConsumerState<WaterGoalEditDialog> {
   late final _controller = TextEditingController(
-    text: widget.currentGoal.toString(),
+    text: widget.currentGoal
+        .toStringAsFixed(2)
+        .replaceFirst(RegExp(r'\.?0+$'), ''),
   );
   bool _isSubmitting = false;
   String? _errorText;
@@ -51,7 +53,7 @@ class _WaterGoalEditDialogState extends ConsumerState<WaterGoalEditDialog> {
   Future<void> _submit() async {
     if (_isSubmitting) return;
 
-    final parsed = int.tryParse(_controller.text.trim());
+    final parsed = double.tryParse(_controller.text.trim());
     if (parsed == null || parsed <= 0) {
       setState(() => _errorText = 'Enter a valid number of litres');
       return;
@@ -101,8 +103,12 @@ class _WaterGoalEditDialogState extends ConsumerState<WaterGoalEditDialog> {
             TextField(
               controller: _controller,
               autofocus: true,
-              keyboardType: TextInputType.number,
-              inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+              keyboardType: const TextInputType.numberWithOptions(
+                decimal: true,
+              ),
+              inputFormatters: [
+                FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d{0,2}')),
+              ],
               textInputAction: TextInputAction.done,
               decoration: InputDecoration(
                 hintText: 'e.g. 2',

@@ -21,8 +21,10 @@ class WaterCalculatorFormState {
   final ActivityLevel activityLevel;
   final WaterCalculatorResult? result;
 
-  bool get canDecrementWeight => weightKg > WaterCalculatorConstants.minWeightKg;
-  bool get canIncrementWeight => weightKg < WaterCalculatorConstants.maxWeightKg;
+  bool get canDecrementWeight =>
+      weightKg > WaterCalculatorConstants.minWeightKg;
+  bool get canIncrementWeight =>
+      weightKg < WaterCalculatorConstants.maxWeightKg;
 }
 
 /// Coordinates weight, selected activity, and the resulting calculation
@@ -58,6 +60,12 @@ class WaterCalculatorNotifier extends Notifier<WaterCalculatorFormState> {
   void incrementWeight() => _setWeight(state.weightKg + _stepKg);
 
   void decrementWeight() => _setWeight(state.weightKg - _stepKg);
+
+  /// Entry point for typed weight input (the value box is directly
+  /// editable). Goes through the same clamp as the stepper buttons, so
+  /// typed values are always kept within [WaterCalculatorConstants.minWeightKg]
+  /// and [WaterCalculatorConstants.maxWeightKg].
+  void setWeight(double weightKg) => _setWeight(weightKg);
 
   void selectActivityLevel(ActivityLevel level) {
     state = WaterCalculatorFormState(
@@ -96,5 +104,5 @@ class WaterCalculatorNotifier extends Notifier<WaterCalculatorFormState> {
 
 final waterCalculatorProvider =
     NotifierProvider<WaterCalculatorNotifier, WaterCalculatorFormState>(
-  WaterCalculatorNotifier.new,
-);
+      WaterCalculatorNotifier.new,
+    );

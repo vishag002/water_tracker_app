@@ -10,6 +10,8 @@ import 'package:water_tracker_app/features/water_calculator/presentation/widgets
 import 'package:water_tracker_app/features/water_calculator/presentation/widgets/methodology_card.dart';
 import 'package:water_tracker_app/features/water_calculator/presentation/widgets/use_goal_button.dart';
 import 'package:water_tracker_app/features/water_calculator/presentation/widgets/weight_stepper_card.dart';
+import 'package:water_tracker_app/providers/user_name_provider.dart';
+import 'package:water_tracker_app/providers/water_goal_provider.dart';
 
 /// Water Calculator screen (MVP).
 ///
@@ -45,6 +47,7 @@ class WaterCalculatorScreen extends ConsumerWidget {
                     canIncrement: state.canIncrementWeight,
                     onDecrement: notifier.decrementWeight,
                     onIncrement: notifier.incrementWeight,
+                    onWeightChanged: notifier.setWeight,
                   ),
                   SizedBox(height: 16.h),
                   ActivityLevelCard(
@@ -54,7 +57,7 @@ class WaterCalculatorScreen extends ConsumerWidget {
                   SizedBox(height: 16.h),
                   HydrationResultCard(result: state.result),
                   SizedBox(height: 16.h),
-                  const EnvironmentalInfoCard(),
+                  // const EnvironmentalInfoCard(),
                   SizedBox(height: 16.h),
                   const MethodologyCard(),
                   SizedBox(height: 16.h),
@@ -70,12 +73,25 @@ class WaterCalculatorScreen extends ConsumerWidget {
                 enabled: state.result != null,
                 onPressed: state.result == null
                     ? null
-                    : () {
-                        // TODO(vishag): wire this up to the app's actual
-                        // water goal (Hive) once persistence lands.
-                        // For now, hand the calculated target back to
-                        // whoever pushed this screen.
-                        Navigator.of(context).pop(state.result!.totalWaterMl);
+                    : () async {
+                        final userId = ref.read(currentUserProvider).value?.id;
+                        if (userId != null) {
+                          // Store the exact fractional litre value from the
+                          // calculator — goal is stored as a double now, so
+                          // this isn't truncated to a whole litre.
+                          await ref
+                              .read(waterGoalRepositoryProvider)
+                              .createWaterGoal(
+                                userId: userId,
+                                goal: state.result!.totalWaterLiters,
+                                unit: 'L',
+                              );
+                        }
+                        if (context.mounted) {
+                          Navigator.of(
+                            context,
+                          ).pop(state.result!.totalWaterMl);
+                        }
                       },
               ),
             ),

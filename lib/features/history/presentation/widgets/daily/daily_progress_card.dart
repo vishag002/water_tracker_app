@@ -15,7 +15,7 @@ class DailyProgressCard extends ConsumerWidget {
 
   // Same default the app seeds on first launch (see HomeScreen), used
   // only as a display fallback before the real goal has loaded.
-  static const int _defaultGoalLiters = 2;
+  static const double _defaultGoalLiters = 2.0;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -68,7 +68,8 @@ class DailyProgressCard extends ConsumerWidget {
               // The goal table's `unit` isn't user-selectable yet (see
               // WaterGoalEditDialog) — goals are always entered and stored
               // in liters for V1, same assumption HomeScreen makes.
-              goalMl: (goalAsync.value?.goal ?? _defaultGoalLiters) * 1000,
+              goalMl: ((goalAsync.value?.goal ?? _defaultGoalLiters) * 1000)
+                  .round(),
             ),
         ],
       ),
@@ -136,7 +137,7 @@ class DailyProgressCard extends ConsumerWidget {
                   ),
                   SizedBox(height: 2.h),
                   Text(
-                    'of ${(goalMl / 1000).toStringAsFixed(1)} L',
+                    'of ${GeneralService.formatGoal(goalMl / 1000)}',
                     style: AppTextStyles.bodyMedium.copyWith(
                       color: theme.colorScheme.onSurface.withOpacity(0.6),
                     ),

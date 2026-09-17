@@ -22,4 +22,8 @@ class GeneralService {
   static DateTime dateOnly(DateTime date) {
     return DateTime(date.year, date.month, date.day);
   }
+
+  static String formatGoal(double liters) {
+    return '${liters.toStringAsFixed(2).replaceFirst(RegExp(r'\.?0+$'), '')} L';
+  }
 }

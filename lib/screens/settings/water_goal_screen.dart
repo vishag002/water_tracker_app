@@ -386,277 +386,279 @@ class _CustomGoalSheetState extends State<_CustomGoalSheet> {
   @override
   Widget build(BuildContext context) {
     final accentColor = AppColors.colour368AE9;
-    return Padding(
-      padding: EdgeInsets.only(
-        left: 20.w,
-        right: 20.w,
-        top: 12.h,
-        bottom: MediaQuery.of(context).viewInsets.bottom + 20.h,
-      ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          //grabber + close button
-          Stack(
-            alignment: Alignment.center,
-            children: [
-              Container(
-                height: 4.h,
-                width: 40.w,
-                decoration: BoxDecoration(
-                  color: Theme.of(
-                    context,
-                  ).colorScheme.onSurface.withValues(alpha: 0.2),
-                  borderRadius: BorderRadius.circular(2.r),
+    return SafeArea(
+      child: Padding(
+        padding: EdgeInsets.only(
+          left: 20.w,
+          right: 20.w,
+          top: 12.h,
+          bottom: MediaQuery.of(context).viewInsets.bottom + 20.h,
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            //grabber + close button
+            Stack(
+              alignment: Alignment.center,
+              children: [
+                Container(
+                  height: 4.h,
+                  width: 40.w,
+                  decoration: BoxDecoration(
+                    color: Theme.of(
+                      context,
+                    ).colorScheme.onSurface.withValues(alpha: 0.2),
+                    borderRadius: BorderRadius.circular(2.r),
+                  ),
                 ),
+                // Positioned(
+                //   right: 0,
+                //   child: GestureDetector(
+                //     onTap: () => Navigator.pop(context),
+                //     child: Container(
+                //       height: 28.h,
+                //       width: 28.w,
+                //       decoration: BoxDecoration(
+                //         shape: BoxShape.circle,
+                //         color: Theme.of(
+                //           context,
+                //         ).colorScheme.onSurface.withValues(alpha: 0.05),
+                //       ),
+                //       child: Icon(Icons.close, size: 16.sp),
+                //     ),
+                //   ),
+                // ),
+              ],
+            ),
+            SizedBox(height: 15.h),
+
+            //icon
+            Container(
+              height: 56.h,
+              width: 56.w,
+              decoration: BoxDecoration(
+                color: accentColor.withValues(alpha: 0.1),
+                shape: BoxShape.circle,
               ),
-              Positioned(
-                right: 0,
-                child: GestureDetector(
-                  onTap: () => Navigator.pop(context),
-                  child: Container(
-                    height: 28.h,
-                    width: 28.w,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
+              child: Icon(Icons.water_drop, size: 26.sp, color: accentColor),
+            ),
+            SizedBox(height: 12.h),
+
+            //title
+            Text(
+              'Custom Water Goal',
+              style: AppTextStyles.subtitleSemiBold.copyWith(
+                color: Theme.of(context).colorScheme.onSurface,
+              ),
+            ),
+            SizedBox(height: 5.h),
+            Text(
+              'Choose your daily water intake goal',
+              textAlign: TextAlign.center,
+              style: AppTextStyles.bodySmallRegular.copyWith(
+                color: Theme.of(
+                  context,
+                ).colorScheme.onSurface.withValues(alpha: 0.6),
+              ),
+            ),
+            SizedBox(height: 20.h),
+
+            //big value display
+            Container(
+              width: double.infinity,
+              padding: EdgeInsets.symmetric(vertical: 15.h),
+              decoration: BoxDecoration(
+                color: accentColor.withValues(alpha: 0.06),
+                borderRadius: BorderRadius.circular(12.r),
+              ),
+              child: Column(
+                children: [
+                  RichText(
+                    text: TextSpan(
+                      children: [
+                        TextSpan(
+                          text: selectedLiters.toStringAsFixed(1),
+                          style: AppTextStyles.headingSemiBold.copyWith(
+                            color: accentColor,
+                          ),
+                        ),
+                        TextSpan(
+                          text: ' L',
+                          style: AppTextStyles.bodyMedium.copyWith(
+                            color: accentColor,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  SizedBox(height: 3.h),
+                  Text(
+                    'Daily target',
+                    style: AppTextStyles.captionRegular.copyWith(
                       color: Theme.of(
                         context,
-                      ).colorScheme.onSurface.withValues(alpha: 0.05),
+                      ).colorScheme.onSurface.withValues(alpha: 0.6),
                     ),
-                    child: Icon(Icons.close, size: 16.sp),
                   ),
-                ),
+                ],
               ),
-            ],
-          ),
-          SizedBox(height: 15.h),
+            ),
+            SizedBox(height: 15.h),
 
-          //icon
-          Container(
-            height: 56.h,
-            width: 56.w,
-            decoration: BoxDecoration(
-              color: accentColor.withValues(alpha: 0.1),
-              shape: BoxShape.circle,
+            //slider (0.5 L steps, 0.5 L - 10 L)
+            SliderTheme(
+              data: SliderTheme.of(context).copyWith(
+                activeTrackColor: accentColor,
+                inactiveTrackColor: Theme.of(
+                  context,
+                ).colorScheme.onSurface.withValues(alpha: 0.1),
+                thumbColor: accentColor,
+                overlayColor: accentColor.withValues(alpha: 0.15),
+                trackHeight: 4.h,
+              ),
+              child: Slider(
+                value: selectedLiters,
+                min: 0.5,
+                max: 10,
+                divisions: 19,
+                onChanged: (value) {
+                  setState(() {
+                    selectedLiters = value;
+                  });
+                },
+              ),
             ),
-            child: Icon(Icons.water_drop, size: 26.sp, color: accentColor),
-          ),
-          SizedBox(height: 12.h),
-
-          //title
-          Text(
-            'Custom Water Goal',
-            style: AppTextStyles.subtitleSemiBold.copyWith(
-              color: Theme.of(context).colorScheme.onSurface,
-            ),
-          ),
-          SizedBox(height: 5.h),
-          Text(
-            'Choose your daily water intake goal',
-            textAlign: TextAlign.center,
-            style: AppTextStyles.bodySmallRegular.copyWith(
-              color: Theme.of(
-                context,
-              ).colorScheme.onSurface.withValues(alpha: 0.6),
-            ),
-          ),
-          SizedBox(height: 20.h),
-
-          //big value display
-          Container(
-            width: double.infinity,
-            padding: EdgeInsets.symmetric(vertical: 15.h),
-            decoration: BoxDecoration(
-              color: accentColor.withValues(alpha: 0.06),
-              borderRadius: BorderRadius.circular(12.r),
-            ),
-            child: Column(
-              children: [
-                RichText(
-                  text: TextSpan(
-                    children: [
-                      TextSpan(
-                        text: selectedLiters.toStringAsFixed(1),
-                        style: AppTextStyles.headingSemiBold.copyWith(
-                          color: accentColor,
-                        ),
-                      ),
-                      TextSpan(
-                        text: ' L',
-                        style: AppTextStyles.bodyMedium.copyWith(
-                          color: accentColor,
-                        ),
-                      ),
-                    ],
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: 4.w),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    '0.5 L',
+                    style: AppTextStyles.captionXsRegular.copyWith(
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.onSurface.withValues(alpha: 0.5),
+                    ),
                   ),
-                ),
-                SizedBox(height: 3.h),
-                Text(
-                  'Daily target',
-                  style: AppTextStyles.captionRegular.copyWith(
+                  Text(
+                    '${selectedLiters.toStringAsFixed(1)} L',
+                    style: AppTextStyles.captionXsSemiBold.copyWith(
+                      color: accentColor,
+                    ),
+                  ),
+                  Text(
+                    '10 L',
+                    style: AppTextStyles.captionXsRegular.copyWith(
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.onSurface.withValues(alpha: 0.5),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            SizedBox(height: 15.h),
+
+            //recommended range info
+            Container(
+              width: double.infinity,
+              padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 10.h),
+              decoration: BoxDecoration(
+                color: accentColor.withValues(alpha: 0.06),
+                borderRadius: BorderRadius.circular(10.r),
+              ),
+              child: Row(
+                children: [
+                  Icon(Icons.water_drop, size: 14.sp, color: accentColor),
+                  SizedBox(width: 8.w),
+                  Expanded(
+                    child: Text(
+                      'Recommended range   1.5 L ~ 4 L',
+                      style: AppTextStyles.captionSemiBold.copyWith(
+                        color: accentColor,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            SizedBox(height: 15.h),
+
+            //how it works
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Container(
+                  height: 32.h,
+                  width: 32.w,
+                  decoration: BoxDecoration(
+                    color: Theme.of(
+                      context,
+                    ).colorScheme.onSurface.withValues(alpha: 0.05),
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(
+                    Icons.info_outline,
+                    size: 16.sp,
                     color: Theme.of(
                       context,
                     ).colorScheme.onSurface.withValues(alpha: 0.6),
                   ),
                 ),
-              ],
-            ),
-          ),
-          SizedBox(height: 15.h),
-
-          //slider (0.5 L steps, 0.5 L - 10 L)
-          SliderTheme(
-            data: SliderTheme.of(context).copyWith(
-              activeTrackColor: accentColor,
-              inactiveTrackColor: Theme.of(
-                context,
-              ).colorScheme.onSurface.withValues(alpha: 0.1),
-              thumbColor: accentColor,
-              overlayColor: accentColor.withValues(alpha: 0.15),
-              trackHeight: 4.h,
-            ),
-            child: Slider(
-              value: selectedLiters,
-              min: 0.5,
-              max: 10,
-              divisions: 19,
-              onChanged: (value) {
-                setState(() {
-                  selectedLiters = value;
-                });
-              },
-            ),
-          ),
-          Padding(
-            padding: EdgeInsets.symmetric(horizontal: 4.w),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  '0.5 L',
-                  style: AppTextStyles.captionXsRegular.copyWith(
-                    color: Theme.of(
-                      context,
-                    ).colorScheme.onSurface.withValues(alpha: 0.5),
-                  ),
-                ),
-                Text(
-                  '${selectedLiters.toStringAsFixed(1)} L',
-                  style: AppTextStyles.captionXsSemiBold.copyWith(
-                    color: accentColor,
-                  ),
-                ),
-                Text(
-                  '10 L',
-                  style: AppTextStyles.captionXsRegular.copyWith(
-                    color: Theme.of(
-                      context,
-                    ).colorScheme.onSurface.withValues(alpha: 0.5),
-                  ),
-                ),
-              ],
-            ),
-          ),
-          SizedBox(height: 15.h),
-
-          //recommended range info
-          Container(
-            width: double.infinity,
-            padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 10.h),
-            decoration: BoxDecoration(
-              color: accentColor.withValues(alpha: 0.06),
-              borderRadius: BorderRadius.circular(10.r),
-            ),
-            child: Row(
-              children: [
-                Icon(Icons.water_drop, size: 14.sp, color: accentColor),
-                SizedBox(width: 8.w),
+                SizedBox(width: 10.w),
                 Expanded(
-                  child: Text(
-                    'Recommended range   1.5 L ~ 4 L',
-                    style: AppTextStyles.captionSemiBold.copyWith(
-                      color: accentColor,
-                    ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Why this goal?',
+                        style: AppTextStyles.bodySmallSemiBold.copyWith(
+                          color: Theme.of(context).colorScheme.onSurface,
+                        ),
+                      ),
+                      SizedBox(height: 3.h),
+                      Text(
+                        "Drinking ${selectedLiters.toStringAsFixed(1)} liters of water daily helps maintain your body's balance and supports overall health.",
+                        style: AppTextStyles.captionRegular.copyWith(
+                          color: Theme.of(
+                            context,
+                          ).colorScheme.onSurface.withValues(alpha: 0.6),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ],
             ),
-          ),
-          SizedBox(height: 15.h),
+            SizedBox(height: 20.h),
 
-          //how it works
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Container(
-                height: 32.h,
-                width: 32.w,
-                decoration: BoxDecoration(
-                  color: Theme.of(
-                    context,
-                  ).colorScheme.onSurface.withValues(alpha: 0.05),
-                  shape: BoxShape.circle,
+            //save button
+            SizedBox(
+              width: double.infinity,
+              height: 52.h,
+              child: ElevatedButton(
+                onPressed: () {
+                  widget.onSave(selectedLiters);
+                  Navigator.pop(context);
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: accentColor,
+                  foregroundColor: Colors.white,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(15.r),
+                  ),
                 ),
-                child: Icon(
-                  Icons.info_outline,
-                  size: 16.sp,
-                  color: Theme.of(
-                    context,
-                  ).colorScheme.onSurface.withValues(alpha: 0.6),
-                ),
-              ),
-              SizedBox(width: 10.w),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Why this goal?',
-                      style: AppTextStyles.bodySmallSemiBold.copyWith(
-                        color: Theme.of(context).colorScheme.onSurface,
-                      ),
-                    ),
-                    SizedBox(height: 3.h),
-                    Text(
-                      "Drinking ${selectedLiters.toStringAsFixed(1)} liters of water daily helps maintain your body's balance and supports overall health.",
-                      style: AppTextStyles.captionRegular.copyWith(
-                        color: Theme.of(
-                          context,
-                        ).colorScheme.onSurface.withValues(alpha: 0.6),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-          SizedBox(height: 20.h),
-
-          //save button
-          SizedBox(
-            width: double.infinity,
-            height: 52.h,
-            child: ElevatedButton(
-              onPressed: () {
-                widget.onSave(selectedLiters);
-                Navigator.pop(context);
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: accentColor,
-                foregroundColor: Colors.white,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(15.r),
-                ),
-              ),
-              child: Text(
-                'Save Goal',
-                style: AppTextStyles.bodySmallSemiBold.copyWith(
-                  color: Colors.white,
+                child: Text(
+                  'Save Goal',
+                  style: AppTextStyles.bodySmallSemiBold.copyWith(
+                    color: Colors.white,
+                  ),
                 ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

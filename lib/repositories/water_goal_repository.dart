@@ -18,7 +18,7 @@ class WaterGoalRepository {
   /// existing one. Callers don't need to know which case applies.
   Future<void> createWaterGoal({
     required int userId,
-    required int goal,
+    required double goal,
     required String unit,
   }) async {
     final existing = await getWaterGoal(userId);
@@ -35,7 +35,7 @@ class WaterGoalRepository {
 
   Future<void> updateWaterGoal({
     required int userId,
-    int? goal,
+    double? goal,
     String? unit,
   }) async {
     await _db.waterGoalsDao.updateWaterGoal(

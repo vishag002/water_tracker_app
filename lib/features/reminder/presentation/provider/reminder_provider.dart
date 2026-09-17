@@ -10,7 +10,7 @@ import 'package:water_tracker_app/repositories/reminder_repository.dart';
 /// Same "goal is stored in liters" convention used in
 /// `next_reminder_provider.dart` — the goal table's `unit` isn't
 /// user-editable yet.
-const int _defaultGoalLiters = 2;
+const double _defaultGoalLiters = 2.0;
 
 final reminderRepositoryProvider = Provider<ReminderRepository>((ref) {
   return ReminderRepository(ref.watch(appDatabaseProvider));
@@ -58,7 +58,8 @@ final reminderSyncStateProvider = Provider<ReminderSyncState?>((ref) {
   if (reminderAsync.isLoading || goalAsync.isLoading) return null;
   if (reminderAsync.hasError || goalAsync.hasError) return null;
 
-  final todayGoalMl = (goalAsync.value?.goal ?? _defaultGoalLiters) * 1000;
+  final todayGoalMl = ((goalAsync.value?.goal ?? _defaultGoalLiters) * 1000)
+      .round();
 
   return ReminderSyncState(
     reminder: reminderAsync.value,

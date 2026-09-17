@@ -4,12 +4,15 @@ import 'package:water_tracker_app/core/app_text_styles.dart';
 
 /// Pinned bottom call-to-action. Disabled until a result is available.
 ///
-/// NOTE: this currently only invokes [onPressed] — it does not persist
-/// anything. Wiring it up to the app's actual water goal (Hive) is
-/// post-MVP, matching the TODO already on the Reminder screen's Save
-/// Changes button.
+/// This button is purely presentational — it only invokes [onPressed].
+/// The actual persistence of the calculated goal (to the app's Drift-backed
+/// water goal store) happens in the screen that supplies [onPressed].
 class UseGoalButton extends StatelessWidget {
-  const UseGoalButton({super.key, required this.enabled, required this.onPressed});
+  const UseGoalButton({
+    super.key,
+    required this.enabled,
+    required this.onPressed,
+  });
 
   final bool enabled;
   final VoidCallback? onPressed;

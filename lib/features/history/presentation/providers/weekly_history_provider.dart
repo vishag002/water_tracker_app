@@ -5,7 +5,7 @@ import 'package:water_tracker_app/providers/water_goal_provider.dart';
 
 /// Same default the app seeds on first launch (see HomeScreen) — used
 /// only as a display fallback before the real goal has loaded.
-const int _defaultGoalLiters = 2;
+const double _defaultGoalLiters = 2.0;
 
 /// Combines this week's entries with the current goal and runs them
 /// through [WeeklyHistoryCalculator]. This is the single entry point the
@@ -42,7 +42,8 @@ final weeklyHistoryProvider =
       // The goal table's `unit` isn't user-selectable yet (see
       // WaterGoalEditDialog) — goals are always entered and stored in
       // liters for V1, same assumption HomeScreen and the Daily tab make.
-      final goalMl = (goalAsync.value?.goal ?? _defaultGoalLiters) * 1000;
+      final goalMl = ((goalAsync.value?.goal ?? _defaultGoalLiters) * 1000)
+          .round();
 
       final result = WeeklyHistoryCalculator.calculate(
         weekStart: weekStart,
