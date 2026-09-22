@@ -63,7 +63,7 @@ class ReminderNotificationCoordinator {
     if (slots.isEmpty) return;
 
     await _notificationService.requestPermission();
-    await _notificationService.requestExactAlarmsPermission();
+    // await _notificationService.requestExactAlarmsPermission();
 
     for (final slot in slots) {
       final minuteOfDay = slot.hour * 60 + slot.minute;

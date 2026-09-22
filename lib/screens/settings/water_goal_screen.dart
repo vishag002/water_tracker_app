@@ -1,23 +1,27 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:water_tracker_app/components/scaffold_custom.dart';
 import 'package:water_tracker_app/core/app_text_styles.dart';
 import 'package:water_tracker_app/core/constants/colour_const.dart';
+import 'package:water_tracker_app/providers/user_name_provider.dart';
+import 'package:water_tracker_app/providers/water_goal_provider.dart';
 
-class WaterGoalScreen extends StatefulWidget {
+class WaterGoalScreen extends ConsumerStatefulWidget {
   const WaterGoalScreen({super.key});
 
   @override
-  State<WaterGoalScreen> createState() => _WaterGoalScreenState();
+  ConsumerState<WaterGoalScreen> createState() => _WaterGoalScreenState();
 }
 
-class _WaterGoalScreenState extends State<WaterGoalScreen> {
+class _WaterGoalScreenState extends ConsumerState<WaterGoalScreen> {
   static const double _recommendedGoal = 2.0;
   static const List<double> _quickOptions = [1.5, 2.0, 2.5, 3.0];
 
   double goalLiters = _recommendedGoal;
   bool isCustomSelected = false;
   double customGoalLiters = 4.0;
+  bool _isSaving = false;
 
   void _onQuickSelect(double liters) {
     setState(() {
@@ -53,6 +57,22 @@ class _WaterGoalScreenState extends State<WaterGoalScreen> {
       goalLiters = value;
       isCustomSelected = !_quickOptions.contains(value);
     });
+  }
+
+  Future<void> _onSaveGoal() async {
+    if (_isSaving) return;
+    final userId = ref.read(currentUserProvider).value?.id;
+    if (userId == null) return;
+
+    setState(() => _isSaving = true);
+    try {
+      await ref
+          .read(waterGoalRepositoryProvider)
+          .createWaterGoal(userId: userId, goal: goalLiters, unit: 'L');
+      if (mounted) Navigator.pop(context);
+    } finally {
+      if (mounted) setState(() => _isSaving = false);
+    }
   }
 
   @override
@@ -126,24 +146,6 @@ class _WaterGoalScreenState extends State<WaterGoalScreen> {
                       ),
                     ),
                     SizedBox(height: 8.h),
-
-                    if (goalLiters == _recommendedGoal)
-                      Container(
-                        padding: EdgeInsets.symmetric(
-                          horizontal: 10.w,
-                          vertical: 5.h,
-                        ),
-                        decoration: BoxDecoration(
-                          color: accentColor.withValues(alpha: 0.1),
-                          borderRadius: BorderRadius.circular(20.r),
-                        ),
-                        child: Text(
-                          'Recommended',
-                          style: AppTextStyles.captionXsSemiBold.copyWith(
-                            color: accentColor,
-                          ),
-                        ),
-                      ),
                     SizedBox(height: 20.h),
 
                     //slider with always-visible value bubble
@@ -288,10 +290,17 @@ class _WaterGoalScreenState extends State<WaterGoalScreen> {
               width: double.infinity,
               height: 52.h,
               child: ElevatedButton.icon(
-                onPressed: () {
-                  //
-                },
-                icon: Icon(Icons.check_circle, size: 18.sp),
+                onPressed: _isSaving ? null : _onSaveGoal,
+                icon: _isSaving
+                    ? SizedBox(
+                        height: 16.h,
+                        width: 16.w,
+                        child: const CircularProgressIndicator(
+                          strokeWidth: 2,
+                          color: Colors.white,
+                        ),
+                      )
+                    : Icon(Icons.check_circle, size: 18.sp),
                 label: Text(
                   'Save Goal',
                   style: AppTextStyles.bodySmallSemiBold.copyWith(

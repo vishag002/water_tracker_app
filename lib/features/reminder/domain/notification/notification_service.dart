@@ -66,14 +66,14 @@ class NotificationService {
   /// Without this, exact reminders silently fall back to inexact timing
   /// (or are skipped, depending on OS version) once the permission is
   /// revoked or was never granted.
-  Future<void> requestExactAlarmsPermission() async {
-    final androidPlugin = _plugin
-        .resolvePlatformSpecificImplementation<
-          AndroidFlutterLocalNotificationsPlugin
-        >();
+  // Future<void> requestExactAlarmsPermission() async {
+  //   final androidPlugin = _plugin
+  //       .resolvePlatformSpecificImplementation<
+  //         AndroidFlutterLocalNotificationsPlugin
+  //       >();
 
-    await androidPlugin?.requestExactAlarmsPermission();
-  }
+  //   await androidPlugin?.requestExactAlarmsPermission();
+  // }
 
   Future<void> showTestNotification() async {
     const androidDetails = AndroidNotificationDetails(
@@ -188,7 +188,7 @@ class NotificationService {
       body: 'Take a moment to drink some water.',
       scheduledDate: scheduledDate,
       notificationDetails: details,
-      androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
+      androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
       matchDateTimeComponents: DateTimeComponents.time,
     );
   }

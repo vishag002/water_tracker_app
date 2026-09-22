@@ -37,7 +37,10 @@ class DailyTimeline extends ConsumerWidget {
           entriesAsync.when(
             data: (entries) {
               if (entries.isEmpty) {
-                return _buildEmptyState(theme, isToday: GeneralService.isToday(date));
+                return _buildEmptyState(
+                  theme,
+                  isToday: GeneralService.isToday(date),
+                );
               }
 
               // The DAO returns newest first; the timeline reads top-to-
@@ -49,6 +52,7 @@ class DailyTimeline extends ConsumerWidget {
                   chronological.length,
                   (index) => _buildTimelineItem(
                     context,
+                    ref,
                     theme: theme,
                     entry: chronological[index],
                     isLast: index == chronological.length - 1,
@@ -96,7 +100,8 @@ class DailyTimeline extends ConsumerWidget {
   }
 
   Widget _buildTimelineItem(
-    BuildContext context, {
+    BuildContext context,
+    WidgetRef ref, {
     required ThemeData theme,
     required WaterEntry entry,
     required bool isLast,
@@ -134,6 +139,7 @@ class DailyTimeline extends ConsumerWidget {
 
           Expanded(
             child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Expanded(
                   child: Column(
@@ -157,6 +163,7 @@ class DailyTimeline extends ConsumerWidget {
                 ),
 
                 _buildEditButton(context, theme, entry),
+                _buildDeleteButton(context, ref, theme, entry),
               ],
             ),
           ),
@@ -190,5 +197,66 @@ class DailyTimeline extends ConsumerWidget {
         ),
       ),
     );
+  }
+
+  Widget _buildDeleteButton(
+    BuildContext context,
+    WidgetRef ref,
+    ThemeData theme,
+    WaterEntry entry,
+  ) {
+    return GestureDetector(
+      onTap: () => _confirmDelete(context, ref, entry),
+      behavior: HitTestBehavior.opaque,
+      child: Container(
+        width: 34.w,
+        height: 34.w,
+        alignment: Alignment.center,
+        margin: EdgeInsets.only(left: 8.w),
+        decoration: BoxDecoration(
+          color: theme.colorScheme.error.withOpacity(0.08),
+          borderRadius: BorderRadius.circular(9.r),
+        ),
+        child: Icon(
+          Icons.delete_outline,
+          size: 17.sp,
+          color: theme.colorScheme.error,
+        ),
+      ),
+    );
+  }
+
+  Future<void> _confirmDelete(
+    BuildContext context,
+    WidgetRef ref,
+    WaterEntry entry,
+  ) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Delete entry?'),
+        content: Text(
+          'Remove the ${entry.amount} ${entry.unit} entry at '
+          '${_timeFormat.format(entry.addedAt)}?',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: Text(
+              'Delete',
+              style: TextStyle(color: Theme.of(context).colorScheme.error),
+            ),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed == true) {
+      await ref.read(waterEntryRepositoryProvider).deleteEntry(entry.id);
+    }
   }
 }
