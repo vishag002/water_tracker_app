@@ -5,9 +5,9 @@ import 'package:water_tracker_app/core/app_text_styles.dart';
 import 'package:water_tracker_app/core/constants/colour_const.dart';
 import 'package:water_tracker_app/core/constants/image_const.dart';
 import 'package:water_tracker_app/features/history/presentation/screens/history_screens.dart';
-import 'package:water_tracker_app/features/reminder/presentation/provider/reminder_provider.dart';
-import 'package:water_tracker_app/screens/home/home_screen.dart';
-import 'package:water_tracker_app/screens/settings/settings_screen.dart';
+import 'package:water_tracker_app/features/reminder/presentation/providers/reminder_provider.dart';
+import 'package:water_tracker_app/features/home/presentation/screens/home_screen.dart';
+import 'package:water_tracker_app/features/settings/presentation/screens/settings_screen.dart';
 
 class MainNavScreen extends ConsumerStatefulWidget {
   const MainNavScreen({super.key});

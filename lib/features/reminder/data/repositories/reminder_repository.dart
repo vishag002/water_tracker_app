@@ -1,6 +1,6 @@
 import 'package:drift/drift.dart';
 
-import '../database/app_database.dart';
+import '../../../../database/app_database.dart';
 
 /// Application-facing reminder-configuration operations. Enforces the
 /// "one reminder configuration per user" rule so callers never have to

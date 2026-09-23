@@ -3,7 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
-import '../../providers/water_goal_provider.dart';
+import '../providers/water_goal_provider.dart';
 
 /// Same dialog shape/style as OnboardingNameDialog, adapted for a numeric
 /// litre value instead of a name. Only "L" is supported for now — the

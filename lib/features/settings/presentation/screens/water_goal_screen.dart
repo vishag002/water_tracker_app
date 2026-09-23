@@ -4,8 +4,8 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:water_tracker_app/components/scaffold_custom.dart';
 import 'package:water_tracker_app/core/app_text_styles.dart';
 import 'package:water_tracker_app/core/constants/colour_const.dart';
-import 'package:water_tracker_app/providers/user_name_provider.dart';
-import 'package:water_tracker_app/providers/water_goal_provider.dart';
+import 'package:water_tracker_app/features/home/presentation/providers/user_name_provider.dart';
+import 'package:water_tracker_app/features/home/presentation/providers/water_goal_provider.dart';
 
 class WaterGoalScreen extends ConsumerStatefulWidget {
   const WaterGoalScreen({super.key});

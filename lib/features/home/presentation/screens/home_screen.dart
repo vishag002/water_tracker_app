@@ -1,22 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:water_tracker_app/animations/glassy_water_bottle.dart';
-import 'package:water_tracker_app/animations/glassy_water_controller.dart';
-import 'package:water_tracker_app/components/hexagon_widget.dart';
-import 'package:water_tracker_app/components/quick_add_button_widget.dart';
+import 'package:water_tracker_app/features/home/presentation/animations/glassy_water_bottle.dart';
+import 'package:water_tracker_app/features/home/presentation/animations/glassy_water_controller.dart';
+import 'package:water_tracker_app/features/home/presentation/widgets/hexagon_widget.dart';
+import 'package:water_tracker_app/features/home/presentation/widgets/quick_add_button_widget.dart';
 import 'package:water_tracker_app/components/scaffold_custom.dart';
 import 'package:water_tracker_app/core/app_text_styles.dart';
 import 'package:water_tracker_app/core/constants/image_const.dart';
 import 'package:water_tracker_app/core/services/general_service.dart';
 import 'package:water_tracker_app/features/streak/presentation/providers/streak_provider.dart';
 import 'package:water_tracker_app/l10n/app_localizations.dart';
-import 'package:water_tracker_app/providers/user_name_provider.dart';
-import 'package:water_tracker_app/providers/water_entry_provider.dart';
-import 'package:water_tracker_app/providers/water_goal_provider.dart';
-import 'package:water_tracker_app/screens/home/domain/calculators/daily_intake_calculator.dart';
-import 'package:water_tracker_app/screens/home/water_goal_edit_dialog.dart';
-import 'package:water_tracker_app/screens/onboarding/onboarding_name_dialog.dart';
+import 'package:water_tracker_app/features/home/presentation/providers/user_name_provider.dart';
+import 'package:water_tracker_app/features/home/presentation/providers/water_entry_provider.dart';
+import 'package:water_tracker_app/features/home/presentation/providers/water_goal_provider.dart';
+import 'package:water_tracker_app/features/home/domain/daily_intake_calculator.dart';
+import 'package:water_tracker_app/features/home/presentation/widgets/water_goal_edit_dialog.dart';
+import 'package:water_tracker_app/features/home/presentation/widgets/onboarding_name_dialog.dart';
 
 class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({super.key});

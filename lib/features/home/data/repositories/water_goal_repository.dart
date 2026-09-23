@@ -1,6 +1,6 @@
 import 'package:drift/drift.dart';
 
-import '../database/app_database.dart';
+import '../../../../database/app_database.dart';
 
 /// Application-facing water-goal operations. Enforces the "one current
 /// goal per user" rule so callers never have to think about insert-vs-update.

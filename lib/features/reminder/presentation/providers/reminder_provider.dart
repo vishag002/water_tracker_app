@@ -2,10 +2,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:water_tracker_app/database/app_database.dart';
 import 'package:water_tracker_app/features/reminder/domain/calculators/reminder_notification_coordinator.dart';
 import 'package:water_tracker_app/features/reminder/domain/notification/notification_service.dart';
-import 'package:water_tracker_app/providers/user_name_provider.dart';
-import 'package:water_tracker_app/providers/water_entry_provider.dart';
-import 'package:water_tracker_app/providers/water_goal_provider.dart';
-import 'package:water_tracker_app/repositories/reminder_repository.dart';
+import 'package:water_tracker_app/features/home/presentation/providers/user_name_provider.dart';
+import 'package:water_tracker_app/features/home/presentation/providers/water_entry_provider.dart';
+import 'package:water_tracker_app/features/home/presentation/providers/water_goal_provider.dart';
+import 'package:water_tracker_app/features/reminder/data/repositories/reminder_repository.dart';
 
 /// Same "goal is stored in liters" convention used in
 /// `next_reminder_provider.dart` — the goal table's `unit` isn't

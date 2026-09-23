@@ -1,8 +1,8 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:water_tracker_app/screens/home/domain/calculators/daily_intake_calculator.dart';
+import 'package:water_tracker_app/features/home/domain/daily_intake_calculator.dart';
 
-import '../database/app_database.dart';
-import '../repositories/water_entry_repository.dart';
+import '../../../../database/app_database.dart';
+import '../../data/repositories/water_entry_repository.dart';
 import 'user_name_provider.dart';
 
 final waterEntryRepositoryProvider = Provider<WaterEntryRepository>((ref) {

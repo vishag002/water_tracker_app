@@ -1,7 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../database/app_database.dart';
-import '../repositories/water_goal_repository.dart';
+import '../../../../database/app_database.dart';
+import '../../data/repositories/water_goal_repository.dart';
 import 'user_name_provider.dart';
 
 final waterGoalRepositoryProvider = Provider<WaterGoalRepository>((ref) {

@@ -1,6 +1,6 @@
 import 'package:drift/drift.dart';
 
-import '../database/app_database.dart';
+import '../../../../database/app_database.dart';
 
 /// Application-facing user operations. UI code talks to this, never to
 /// UsersDao or the database directly.

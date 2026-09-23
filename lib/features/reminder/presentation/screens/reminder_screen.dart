@@ -2,15 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:water_tracker_app/components/scaffold_custom.dart';
-import 'package:water_tracker_app/components/settings_card.dart';
+import 'package:water_tracker_app/features/settings/presentation/widgets/settings_card.dart';
 import 'package:water_tracker_app/core/app_text_styles.dart';
 import 'package:water_tracker_app/core/constants/colour_const.dart';
 import 'package:water_tracker_app/core/constants/image_const.dart';
 import 'package:water_tracker_app/database/app_database.dart';
 import 'package:water_tracker_app/features/reminder/domain/calculators/next_reminder_calculator.dart';
-import 'package:water_tracker_app/features/reminder/presentation/provider/next_reminder_provider.dart';
-import 'package:water_tracker_app/features/reminder/presentation/provider/reminder_provider.dart';
-import 'package:water_tracker_app/providers/user_name_provider.dart';
+import 'package:water_tracker_app/features/reminder/presentation/providers/next_reminder_provider.dart';
+import 'package:water_tracker_app/features/reminder/presentation/providers/reminder_provider.dart';
+import 'package:water_tracker_app/features/home/presentation/providers/user_name_provider.dart';
 
 enum ReminderInterval { thirtyMin, oneHour, twoHours, custom }
 

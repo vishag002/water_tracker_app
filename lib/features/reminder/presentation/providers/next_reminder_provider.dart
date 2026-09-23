@@ -1,8 +1,8 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:water_tracker_app/features/reminder/domain/calculators/next_reminder_calculator.dart';
-import 'package:water_tracker_app/features/reminder/presentation/provider/reminder_provider.dart';
-import 'package:water_tracker_app/providers/water_entry_provider.dart';
-import 'package:water_tracker_app/providers/water_goal_provider.dart';
+import 'package:water_tracker_app/features/reminder/presentation/providers/reminder_provider.dart';
+import 'package:water_tracker_app/features/home/presentation/providers/water_entry_provider.dart';
+import 'package:water_tracker_app/features/home/presentation/providers/water_goal_provider.dart';
 
 /// Same "goal is stored in liters" convention used throughout Home and
 /// History — the goal table's `unit` isn't user-editable yet.

@@ -32,5 +32,5 @@ class ImageConstants {
   static const String notificationOutline =
       'assets/images/notification_outline_icon.png';
   static const String waterDrop1 = 'assets/images/water_drop_1.png';
-  static const String appLogo = 'assets/images/app_logo.png';
+  static const String appLogo = 'assets/images/app_logo_4.png';
 }

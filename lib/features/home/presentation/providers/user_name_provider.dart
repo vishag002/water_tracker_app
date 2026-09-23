@@ -1,8 +1,8 @@
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../database/app_database.dart';
-import '../repositories/user_repository.dart';
+import '../../../../database/app_database.dart';
+import '../../data/repositories/user_repository.dart';
 
 /// One AppDatabase instance for the app's lifetime; closed on dispose.
 final appDatabaseProvider = Provider<AppDatabase>((ref) {

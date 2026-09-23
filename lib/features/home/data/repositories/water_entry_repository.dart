@@ -1,4 +1,4 @@
-import '../database/app_database.dart';
+import '../../../../database/app_database.dart';
 
 /// Application-facing water-entry operations. Hides Drift from the UI,
 /// same as UserRepository and WaterGoalRepository.

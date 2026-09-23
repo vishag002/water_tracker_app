@@ -5,7 +5,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:water_tracker_app/core/theme/theme_provider.dart';
 import 'package:water_tracker_app/features/reminder/domain/notification/notification_service.dart';
 import 'package:water_tracker_app/l10n/app_localizations.dart';
-import 'package:water_tracker_app/screens/onboarding/splash_screen.dart';
+import 'package:water_tracker_app/features/settings/presentation/screens/splash_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();

@@ -23,7 +23,14 @@ class NotificationService {
     // Set device timezone.
     final timezoneInfo = await FlutterTimezone.getLocalTimezone();
 
-    tz.setLocalLocation(tz.getLocation(timezoneInfo.identifier));
+    try {
+      tz.setLocalLocation(tz.getLocation(timezoneInfo.identifier));
+    } catch (_) {
+      // Some devices report legacy zone names (e.g. "Asia/Calcutta")
+      // not in the tzdata, which crashes getLocation(). Fall back to
+      // UTC instead of crashing app startup.
+      tz.setLocalLocation(tz.UTC);
+    }
 
     // Android initialization.
     const androidSettings = AndroidInitializationSettings(

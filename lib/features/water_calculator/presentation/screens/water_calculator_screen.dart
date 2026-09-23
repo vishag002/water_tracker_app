@@ -10,8 +10,8 @@ import 'package:water_tracker_app/features/water_calculator/presentation/widgets
 import 'package:water_tracker_app/features/water_calculator/presentation/widgets/methodology_card.dart';
 import 'package:water_tracker_app/features/water_calculator/presentation/widgets/use_goal_button.dart';
 import 'package:water_tracker_app/features/water_calculator/presentation/widgets/weight_stepper_card.dart';
-import 'package:water_tracker_app/providers/user_name_provider.dart';
-import 'package:water_tracker_app/providers/water_goal_provider.dart';
+import 'package:water_tracker_app/features/home/presentation/providers/user_name_provider.dart';
+import 'package:water_tracker_app/features/home/presentation/providers/water_goal_provider.dart';
 
 /// Water Calculator screen (MVP).
 ///

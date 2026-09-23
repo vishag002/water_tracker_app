@@ -3,9 +3,10 @@ import 'package:flutter/scheduler.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:water_tracker_app/core/theme/app_theme.dart';
-import 'package:water_tracker_app/enum/theme_type_enum.dart';
 
 const _themeKey = 'selected_theme';
+
+enum ThemeType { system, light, dark, amoled, ocean, forest }
 
 class ThemeNotifier extends Notifier<ThemeType> {
   @override

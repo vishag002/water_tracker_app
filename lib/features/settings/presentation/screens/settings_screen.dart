@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:water_tracker_app/components/scaffold_custom.dart';
-import 'package:water_tracker_app/components/settings_card.dart';
-import 'package:water_tracker_app/components/theme_mode_button.dart';
+import 'package:water_tracker_app/features/settings/presentation/widgets/settings_card.dart';
+import 'package:water_tracker_app/features/settings/presentation/widgets/theme_mode_button.dart';
 import 'package:water_tracker_app/core/app_text_styles.dart';
 import 'package:water_tracker_app/core/constants/colour_const.dart';
 import 'package:water_tracker_app/core/constants/image_const.dart';
@@ -10,7 +10,7 @@ import 'package:water_tracker_app/features/streak/presentation/screens/streak_ca
 import 'package:water_tracker_app/features/water_calculator/presentation/screens/water_calculator_screen.dart';
 import 'package:water_tracker_app/l10n/app_localizations.dart';
 import 'package:water_tracker_app/features/reminder/presentation/screens/reminder_screen.dart';
-import 'package:water_tracker_app/screens/settings/water_goal_screen.dart';
+import 'package:water_tracker_app/features/settings/presentation/screens/water_goal_screen.dart';
 
 class SettingsScreen extends StatelessWidget {
   const SettingsScreen({super.key});

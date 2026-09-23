@@ -4,9 +4,9 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:water_tracker_app/core/app_text_styles.dart';
 import 'package:water_tracker_app/core/services/general_service.dart';
 import 'package:water_tracker_app/features/history/presentation/widgets/history_card.dart';
-import 'package:water_tracker_app/providers/water_entry_provider.dart';
-import 'package:water_tracker_app/providers/water_goal_provider.dart';
-import 'package:water_tracker_app/screens/home/domain/calculators/daily_intake_calculator.dart';
+import 'package:water_tracker_app/features/home/presentation/providers/water_entry_provider.dart';
+import 'package:water_tracker_app/features/home/presentation/providers/water_goal_provider.dart';
+import 'package:water_tracker_app/features/home/domain/daily_intake_calculator.dart';
 
 class DailyProgressCard extends ConsumerWidget {
   const DailyProgressCard({super.key, required this.date});
