@@ -6,6 +6,7 @@ import 'package:water_tracker_app/core/app_text_styles.dart';
 import 'package:water_tracker_app/core/services/general_service.dart';
 import 'package:water_tracker_app/database/app_database.dart';
 import 'package:water_tracker_app/features/history/presentation/widgets/history_card.dart';
+import 'package:water_tracker_app/features/history/presentation/widgets/daily/water_entry_edit_dialog.dart';
 import 'package:water_tracker_app/features/home/presentation/providers/water_entry_provider.dart';
 
 class DailyTimeline extends ConsumerWidget {
@@ -163,7 +164,7 @@ class DailyTimeline extends ConsumerWidget {
                 ),
 
                 _buildEditButton(context, theme, entry),
-                _buildDeleteButton(context, ref, theme, entry),
+                _buildDeleteButton(ref, theme, entry),
               ],
             ),
           ),
@@ -178,9 +179,7 @@ class DailyTimeline extends ConsumerWidget {
     WaterEntry entry,
   ) {
     return GestureDetector(
-      onTap: () {
-        // TODO: Open edit water entry dialog (post-MVP for this pass).
-      },
+      onTap: () => WaterEntryEditDialog.show(context, entry: entry),
       behavior: HitTestBehavior.opaque,
       child: Container(
         width: 34.w,
@@ -199,14 +198,9 @@ class DailyTimeline extends ConsumerWidget {
     );
   }
 
-  Widget _buildDeleteButton(
-    BuildContext context,
-    WidgetRef ref,
-    ThemeData theme,
-    WaterEntry entry,
-  ) {
+  Widget _buildDeleteButton(WidgetRef ref, ThemeData theme, WaterEntry entry) {
     return GestureDetector(
-      onTap: () => _confirmDelete(context, ref, entry),
+      onTap: () => ref.read(waterEntryRepositoryProvider).deleteEntry(entry.id),
       behavior: HitTestBehavior.opaque,
       child: Container(
         width: 34.w,
@@ -224,39 +218,5 @@ class DailyTimeline extends ConsumerWidget {
         ),
       ),
     );
-  }
-
-  Future<void> _confirmDelete(
-    BuildContext context,
-    WidgetRef ref,
-    WaterEntry entry,
-  ) async {
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Delete entry?'),
-        content: Text(
-          'Remove the ${entry.amount} ${entry.unit} entry at '
-          '${_timeFormat.format(entry.addedAt)}?',
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: const Text('Cancel'),
-          ),
-          TextButton(
-            onPressed: () => Navigator.pop(context, true),
-            child: Text(
-              'Delete',
-              style: TextStyle(color: Theme.of(context).colorScheme.error),
-            ),
-          ),
-        ],
-      ),
-    );
-
-    if (confirmed == true) {
-      await ref.read(waterEntryRepositoryProvider).deleteEntry(entry.id);
-    }
   }
 }

@@ -130,7 +130,7 @@ class DailyProgressCard extends ConsumerWidget {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Text(
-                    '${(consumedMl / 1000).toStringAsFixed(1)} L',
+                    '${(consumedMl / 1000).toStringAsFixed(2)} L',
                     style: AppTextStyles.bodyMedium.copyWith(
                       color: theme.colorScheme.onSurface,
                     ),

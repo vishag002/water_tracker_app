@@ -106,4 +106,13 @@ class WaterEntriesDao extends DatabaseAccessor<AppDatabase>
   Future<int> deleteEntry(int id) {
     return (delete(waterEntries)..where((t) => t.id.equals(id))).go();
   }
+
+  /// Updates only the amount for an existing entry — `addedAt` is left
+  /// untouched, matching the "time can't be edited" rule for the History
+  /// timeline edit dialog.
+  Future<int> updateAmount(int id, int amount) {
+    return (update(waterEntries)..where((t) => t.id.equals(id))).write(
+      WaterEntriesCompanion(amount: Value(amount)),
+    );
+  }
 }

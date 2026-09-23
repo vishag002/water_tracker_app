@@ -88,7 +88,10 @@ class DailySummaryCard extends ConsumerWidget {
   }
 
   Widget _buildStatusRow(ThemeData theme, {required Widget child}) {
-    return SizedBox(height: 48.h, child: Center(child: child));
+    return SizedBox(
+      height: 48.h,
+      child: Center(child: child),
+    );
   }
 
   Widget _buildStat(

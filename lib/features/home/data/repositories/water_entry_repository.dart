@@ -44,4 +44,7 @@ class WaterEntryRepository {
   ) => _db.waterEntriesDao.watchEntriesForRange(userId, start, end);
 
   Future<void> deleteEntry(int id) => _db.waterEntriesDao.deleteEntry(id);
+
+  Future<void> updateEntryAmount(int id, int amount) =>
+      _db.waterEntriesDao.updateAmount(id, amount);
 }
